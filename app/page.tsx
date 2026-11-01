@@ -1013,12 +1013,6 @@ export default function OptionChainPage() {
               </div>
             )}
 
-            {/* Mobile swipe helper hint */}
-            <div className="sm:hidden flex items-center justify-between text-[10.5px] font-bold text-[#2b2259] dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-1 rounded border border-indigo-200 dark:border-indigo-800">
-              <span>👈 Swipe table left to view Puts (PE) 👉</span>
-              <span>➔</span>
-            </div>
-
             {/* Clean 9-Column Symmetrical Table (No extra 'Price Shift' column) */}
             <div className="overflow-x-auto border border-[#c8c8c8] dark:border-slate-800 rounded-md shadow-xs">
               <table className="w-full min-w-[860px] text-left border-collapse font-sans bg-white dark:bg-[#111827] text-[11px]">
@@ -1214,15 +1208,8 @@ export default function OptionChainPage() {
 
         {/* ── TAB 2: STANDARD OPTION CHAIN (NSE VIEW) ─────────────────────────── */}
         {activeTab === 'chain' && (
-          <div className="flex flex-col gap-2">
-            {/* Mobile swipe helper hint */}
-            <div className="sm:hidden flex items-center justify-between text-[10.5px] font-bold text-[#2b2259] dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-1 rounded border border-indigo-200 dark:border-indigo-800">
-              <span>👈 Swipe table left to view Puts (PE) 👉</span>
-              <span>➔</span>
-            </div>
-
-            <div className="overflow-x-auto border border-[#c8c8c8] dark:border-slate-800 rounded-md shadow-xs">
-              <table className="w-full min-w-[860px] text-left border-collapse font-sans bg-white dark:bg-[#111827] text-[11.5px]">
+          <div className="overflow-x-auto border border-[#c8c8c8] dark:border-slate-800 rounded-md shadow-xs">
+            <table className="w-full min-w-[860px] text-left border-collapse font-sans bg-white dark:bg-[#111827] text-[11.5px]">
               <thead>
                 <tr className="bg-[#2b2259] dark:bg-[#1a153a] text-white font-bold text-center border-b border-[#3e3478] dark:border-slate-800">
                   <th colSpan={4} className="py-1.5 text-center tracking-wider border-r-2 border-white/20">
@@ -1367,7 +1354,6 @@ export default function OptionChainPage() {
             </tbody>
             </table>
           </div>
-        </div>
         )}
 
         {/* ── Clean Footer ────────────────────────────────────────────────────── */}
@@ -1418,12 +1404,6 @@ export default function OptionChainPage() {
                 <div className="flex flex-col gap-3">
                   <div className="text-[11.5px] text-[#444] dark:text-slate-300 bg-[#f8fafc] dark:bg-slate-900/60 p-2.5 rounded-lg border border-[#e2e8f0] dark:border-slate-800">
                     Chronological step-by-step breakdown across each recorded hour. Check how Call and Put positions built up or covered.
-                  </div>
-
-                  {/* Mobile horizontal scroll guidance */}
-                  <div className="sm:hidden flex items-center justify-between text-[10.5px] font-bold text-[#2b2259] dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-1 rounded border border-indigo-200 dark:border-indigo-800">
-                    <span>👈 Swipe table left to see Puts (PE) & Action 👉</span>
-                    <span>➔</span>
                   </div>
 
                   <div className="border border-[#e1e4e8] dark:border-slate-800 rounded-lg overflow-x-auto">
