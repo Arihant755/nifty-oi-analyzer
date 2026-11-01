@@ -1013,9 +1013,15 @@ export default function OptionChainPage() {
               </div>
             )}
 
+            {/* Mobile swipe helper hint */}
+            <div className="sm:hidden flex items-center justify-between text-[10.5px] font-bold text-[#2b2259] dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-1 rounded border border-indigo-200 dark:border-indigo-800">
+              <span>👈 Swipe table left to view Puts (PE) 👉</span>
+              <span>➔</span>
+            </div>
+
             {/* Clean 9-Column Symmetrical Table (No extra 'Price Shift' column) */}
             <div className="overflow-x-auto border border-[#c8c8c8] dark:border-slate-800 rounded-md shadow-xs">
-              <table className="w-full text-left border-collapse font-sans bg-white dark:bg-[#111827] text-[11px]">
+              <table className="w-full min-w-[860px] text-left border-collapse font-sans bg-white dark:bg-[#111827] text-[11px]">
                 <thead>
                   {/* Master Header */}
                   <tr className="bg-[#2b2259] dark:bg-[#1a153a] text-white font-bold text-center border-b border-[#3e3478] dark:border-slate-800">
@@ -1208,8 +1214,15 @@ export default function OptionChainPage() {
 
         {/* ── TAB 2: STANDARD OPTION CHAIN (NSE VIEW) ─────────────────────────── */}
         {activeTab === 'chain' && (
-          <div className="overflow-x-auto border border-[#c8c8c8] dark:border-slate-800 rounded-md shadow-xs">
-            <table className="w-full text-left border-collapse font-sans bg-white dark:bg-[#111827] text-[11.5px]">
+          <div className="flex flex-col gap-2">
+            {/* Mobile swipe helper hint */}
+            <div className="sm:hidden flex items-center justify-between text-[10.5px] font-bold text-[#2b2259] dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-1 rounded border border-indigo-200 dark:border-indigo-800">
+              <span>👈 Swipe table left to view Puts (PE) 👉</span>
+              <span>➔</span>
+            </div>
+
+            <div className="overflow-x-auto border border-[#c8c8c8] dark:border-slate-800 rounded-md shadow-xs">
+              <table className="w-full min-w-[860px] text-left border-collapse font-sans bg-white dark:bg-[#111827] text-[11.5px]">
               <thead>
                 <tr className="bg-[#2b2259] dark:bg-[#1a153a] text-white font-bold text-center border-b border-[#3e3478] dark:border-slate-800">
                   <th colSpan={4} className="py-1.5 text-center tracking-wider border-r-2 border-white/20">
@@ -1354,6 +1367,7 @@ export default function OptionChainPage() {
             </tbody>
             </table>
           </div>
+        </div>
         )}
 
         {/* ── Clean Footer ────────────────────────────────────────────────────── */}
@@ -1406,8 +1420,14 @@ export default function OptionChainPage() {
                     Chronological step-by-step breakdown across each recorded hour. Check how Call and Put positions built up or covered.
                   </div>
 
-                  <div className="border border-[#e1e4e8] dark:border-slate-800 rounded-lg overflow-hidden">
-                    <table className="w-full text-left border-collapse text-[11px]">
+                  {/* Mobile horizontal scroll guidance */}
+                  <div className="sm:hidden flex items-center justify-between text-[10.5px] font-bold text-[#2b2259] dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-1 rounded border border-indigo-200 dark:border-indigo-800">
+                    <span>👈 Swipe table left to see Puts (PE) & Action 👉</span>
+                    <span>➔</span>
+                  </div>
+
+                  <div className="border border-[#e1e4e8] dark:border-slate-800 rounded-lg overflow-x-auto">
+                    <table className="w-full min-w-[620px] text-left border-collapse text-[11px]">
                       <thead>
                         <tr className="bg-[#f0f2f5] dark:bg-slate-800 text-[#333] dark:text-slate-200 font-bold border-b border-[#e1e4e8] dark:border-slate-800">
                           <th className="py-2 px-2.5 text-center">TIME SLOT</th>
