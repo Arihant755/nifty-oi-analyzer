@@ -24,6 +24,7 @@ if ROOT_DIR not in sys.path:
 from scraper.collector import OptionChainCollector
 from scraper.holidays import is_trading_day, get_now_ist, IST
 from scraper.telegram import send_hourly_store_alert, send_telegram_alert
+from scraper.watchlist_alerts import dispatch_watchlist_alerts_for_latest_snapshot
 
 logging.basicConfig(
     level=logging.INFO,
@@ -95,8 +96,13 @@ def main():
                 f"[cloud_runner] [SUCCESS] Snapshot #{res['snapshot_id']} saved. "
                 f"Spot={res['spot']:.2f}, PCR={res['pcr']:.2f}, Rows={res['rows_saved']}"
             )
-            # Send Telegram alert
+            # Send Master Telegram alert
             send_hourly_store_alert(res)
+            # Dispatch personalized watchlist alerts to subscribed traders
+            try:
+                dispatch_watchlist_alerts_for_latest_snapshot(res['snapshot_id'])
+            except Exception as e:
+                logger.warning(f"Error dispatching watchlist alerts: {e}")
             print(f"[OK] Completed checkpoint {checkpoint_label}")
             return
         except Exception as e:

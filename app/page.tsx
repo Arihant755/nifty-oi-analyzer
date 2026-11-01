@@ -34,6 +34,21 @@ interface StrikeHistoryStep {
   peAnalysis: any | null;
 }
 
+export interface AppUser {
+  id: string;
+  phone: string;
+  name: string;
+  isTelegramConnected: boolean;
+  telegram_chat_id?: number | null;
+  telegram_username?: string | null;
+}
+
+export interface WatchlistItem {
+  strike: number;
+  option_type: 'CE' | 'PE';
+  created_at?: string;
+}
+
 // Simple Indian market standard hourly slots
 const STANDARD_HOURLY_SLOTS = [
   { id: '9-10', label: '9:15 - 10:15 AM', start: '09:15', end: '10:15' },
@@ -94,6 +109,182 @@ export default function OptionChainPage() {
   const [modalStrike, setModalStrike] = useState<number | null>(null);
   const [strikeHistory, setStrikeHistory] = useState<StrikeHistoryStep[]>([]);
   const [modalLoading, setModalLoading] = useState(false);
+
+  // ── Personalization & Telegram Alerts State ────────────────────────────────
+  const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
+  const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
+  const [watchlistOnly, setWatchlistOnly] = useState<boolean>(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [authPhone, setAuthPhone] = useState<string>('');
+  const [authName, setAuthName] = useState<string>('');
+  const [authLoading, setAuthLoading] = useState<boolean>(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [botUrl, setBotUrl] = useState<string>('');
+  const [botUsername, setBotUsername] = useState<string>('Pro9risersbot');
+  const [testAlertLoading, setTestAlertLoading] = useState<boolean>(false);
+  const [testAlertMsg, setTestAlertMsg] = useState<string | null>(null);
+
+  // Load user's watchlist from API
+  const fetchWatchlist = useCallback(async (userId: string) => {
+    try {
+      const res = await fetch(`/api/watchlist?userId=${userId}`, { cache: 'no-store' });
+      const json = await res.json();
+      if (json.success && json.watchlist) {
+        setWatchlist(json.watchlist);
+      }
+    } catch (e) {
+      console.error('Failed to load watchlist:', e);
+    }
+  }, []);
+
+  // Check user's Telegram link status
+  const checkAuthStatus = useCallback(async (userId: string) => {
+    try {
+      const res = await fetch(`/api/auth/status?userId=${userId}`, { cache: 'no-store' });
+      const json = await res.json();
+      if (json.success && json.user) {
+        setCurrentUser(json.user);
+        if (json.botUrl) setBotUrl(json.botUrl);
+        if (json.botUsername) setBotUsername(json.botUsername);
+        try {
+          localStorage.setItem('nifty_user', JSON.stringify(json.user));
+        } catch (_) {}
+      }
+    } catch (e) {
+      console.error('Failed to check auth status:', e);
+    }
+  }, []);
+
+  // Initialize user from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('nifty_user');
+      if (saved) {
+        const u = JSON.parse(saved);
+        setCurrentUser(u);
+        setAuthPhone(u.phone || '');
+        setAuthName(u.name || '');
+        fetchWatchlist(u.id);
+        checkAuthStatus(u.id);
+      }
+    } catch (_) {}
+  }, [fetchWatchlist, checkAuthStatus]);
+
+  // Poll for Telegram link completion when modal is open and Telegram not connected
+  useEffect(() => {
+    if (!isAuthModalOpen || !currentUser || currentUser.isTelegramConnected) return;
+    const interval = setInterval(() => {
+      checkAuthStatus(currentUser.id);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isAuthModalOpen, currentUser, checkAuthStatus]);
+
+  // Login handler
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      const res = await fetch('/api/auth/phone', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: authPhone, name: authName }),
+      });
+      const json = await res.json();
+      if (json.success && json.user) {
+        setCurrentUser(json.user);
+        if (json.botUrl) setBotUrl(json.botUrl);
+        if (json.botUsername) setBotUsername(json.botUsername);
+        try {
+          localStorage.setItem('nifty_user', JSON.stringify(json.user));
+        } catch (_) {}
+        fetchWatchlist(json.user.id);
+      } else {
+        setAuthError(json.error || 'Failed to submit mobile number');
+      }
+    } catch (err: any) {
+      setAuthError(err.message || 'Network error');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    setWatchlist([]);
+    setWatchlistOnly(false);
+    setAuthPhone('');
+    setAuthName('');
+    setBotUrl('');
+    try {
+      localStorage.removeItem('nifty_user');
+    } catch (_) {}
+  };
+
+  // Check if a strike is in watchlist
+  const isWatched = useCallback(
+    (strike: number, option_type: 'CE' | 'PE') => {
+      return watchlist.some((w) => w.strike === strike && w.option_type === option_type);
+    },
+    [watchlist]
+  );
+
+  // Toggle strike in watchlist
+  const toggleWatchlist = async (strike: number, option_type: 'CE' | 'PE') => {
+    if (!currentUser) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    const exists = isWatched(strike, option_type);
+    if (exists) {
+      setWatchlist((prev) => prev.filter((w) => !(w.strike === strike && w.option_type === option_type)));
+    } else {
+      setWatchlist((prev) => [...prev, { strike, option_type }]);
+    }
+    try {
+      const res = await fetch('/api/watchlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUser.id,
+          strike,
+          option_type,
+          action: 'toggle',
+        }),
+      });
+      const json = await res.json();
+      if (json.success && json.watchlist) {
+        setWatchlist(json.watchlist);
+      }
+    } catch (e) {
+      console.error('Failed to toggle watchlist:', e);
+    }
+  };
+
+  // Send sample test alert to Telegram
+  const handleSendTestAlert = async () => {
+    if (!currentUser) return;
+    setTestAlertLoading(true);
+    setTestAlertMsg(null);
+    try {
+      const res = await fetch('/api/watchlist/test-alert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.id }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setTestAlertMsg('✅ Alert sent to your Telegram! Check your phone.');
+      } else {
+        setTestAlertMsg(`⚠️ ${json.error || 'Failed to send alert'}`);
+      }
+    } catch (e: any) {
+      setTestAlertMsg(`⚠️ ${e.message}`);
+    } finally {
+      setTestAlertLoading(false);
+      setTimeout(() => setTestAlertMsg(null), 8000);
+    }
+  };
 
   // 1. Fetch live option chain
   const fetchData = useCallback(async (expiry?: string) => {
@@ -367,6 +558,10 @@ export default function OptionChainPage() {
   const filteredChainRows = useMemo(() => {
     if (!data || !data.rows) return [];
     let rows = data.rows;
+    if (watchlistOnly) {
+      const watchedStrikes = new Set(watchlist.map((w) => w.strike));
+      return rows.filter((r) => watchedStrikes.has(r.strike));
+    }
     const cleanSearch = searchStrike.trim().replace(/,/g, '');
     if (cleanSearch) {
       return rows.filter((r) => r.strike.toString().includes(cleanSearch));
@@ -382,11 +577,15 @@ export default function OptionChainPage() {
     }
     const target = parseInt(selectedStrike, 10);
     return rows.filter((r) => r.strike === target);
-  }, [data, selectedStrike, searchStrike]);
+  }, [data, selectedStrike, searchStrike, watchlistOnly, watchlist]);
 
   const filteredComparisonRows = useMemo(() => {
     if (!comparisonData || !comparisonData.rows) return [];
     let rows: ComparedStrikeRow[] = comparisonData.rows;
+    if (watchlistOnly) {
+      const watchedStrikes = new Set(watchlist.map((w) => w.strike));
+      return rows.filter((r) => watchedStrikes.has(r.strike));
+    }
     const cleanSearch = searchStrike.trim().replace(/,/g, '');
     if (cleanSearch) {
       return rows.filter((r) => r.strike.toString().includes(cleanSearch));
@@ -402,7 +601,7 @@ export default function OptionChainPage() {
     }
     const target = parseInt(selectedStrike, 10);
     return rows.filter((r) => r.strike === target);
-  }, [comparisonData, selectedStrike, searchStrike]);
+  }, [comparisonData, selectedStrike, searchStrike, watchlistOnly, watchlist]);
 
   const spot = data?.spot || 23053.10;
 
@@ -443,8 +642,40 @@ export default function OptionChainPage() {
               </button>
             </div>
 
-            {/* Right: Mode Switcher Tabs, Theme Toggle & CSV */}
+            {/* Right: Personalization, Mode Switcher Tabs, Theme Toggle & CSV */}
             <div className="flex items-center gap-2 flex-wrap">
+              {/* User Watchlist / Telegram Alerts Button */}
+              {currentUser ? (
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border border-[#d0d7de] dark:border-slate-700 bg-white dark:bg-slate-800 text-[#2b2259] dark:text-indigo-300 hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer transition shadow-2xs"
+                  title="Manage personal watchlist and Telegram alerts"
+                >
+                  <span>👤 {currentUser.phone}</span>
+                  {currentUser.isTelegramConnected ? (
+                    <span className="text-[9.5px] bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 px-1.5 py-0.2 rounded-full font-bold">
+                      🟢 Alerts ON
+                    </span>
+                  ) : (
+                    <span className="text-[9.5px] bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 px-1.5 py-0.2 rounded-full font-bold">
+                      📲 Link Bot
+                    </span>
+                  )}
+                  {watchlist.length > 0 && (
+                    <span className="text-[9.5px] bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 px-1.5 py-0.2 rounded-full font-bold">
+                      ⭐ {watchlist.length}
+                    </span>
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-[#2b2259] dark:bg-indigo-600 text-white hover:bg-[#1f1842] dark:hover:bg-indigo-500 cursor-pointer transition shadow-xs"
+                >
+                  <span>⭐ Watchlist & Alerts</span>
+                </button>
+              )}
+
               {/* Dark Mode Toggle */}
               <button
                 onClick={toggleDarkMode}
@@ -590,6 +821,74 @@ export default function OptionChainPage() {
             </div>
           </div>
         </div>
+
+        {/* ── Active Watchlist Pill Bar (Shows when user has pinned strikes) ── */}
+        {watchlist.length > 0 && (
+          <div className="mb-3 bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 rounded-lg p-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1">
+                ⭐ Watched Strikes ({watchlist.length}):
+              </span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {watchlist.map((w) => (
+                  <span
+                    key={`${w.strike}_${w.option_type}`}
+                    className={`px-2 py-0.5 rounded text-[10.5px] font-bold border flex items-center gap-1 shadow-2xs ${
+                      w.option_type === 'CE'
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700'
+                        : 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-700'
+                    }`}
+                  >
+                    <span>{w.strike} {w.option_type}</span>
+                    <button
+                      onClick={() => toggleWatchlist(w.strike, w.option_type)}
+                      className="text-gray-400 hover:text-red-500 cursor-pointer text-[10px] ml-0.5 font-bold"
+                      title="Remove from alerts"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => setWatchlistOnly(!watchlistOnly)}
+                className={`px-2.5 py-1 rounded text-[10.5px] font-bold border transition cursor-pointer flex items-center gap-1 ${
+                  watchlistOnly
+                    ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
+                    : 'bg-white dark:bg-slate-800 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-700 hover:bg-amber-100/50'
+                }`}
+              >
+                {watchlistOnly ? 'Show All Strikes' : '🎯 View Only My Strikes'}
+              </button>
+
+              {currentUser?.isTelegramConnected ? (
+                <button
+                  onClick={handleSendTestAlert}
+                  disabled={testAlertLoading}
+                  className="px-2.5 py-1 rounded text-[10.5px] font-bold bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer transition shadow-xs flex items-center gap-1"
+                >
+                  {testAlertLoading ? 'Sending...' : '📲 Test Alert in Telegram'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="px-2.5 py-1 rounded text-[10.5px] font-bold bg-amber-600 hover:bg-amber-700 text-white cursor-pointer transition shadow-xs flex items-center gap-1 animate-pulse"
+                >
+                  📲 Connect Telegram Bot
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {testAlertMsg && (
+          <div className="mb-2 p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 text-[11px] font-medium text-indigo-900 dark:text-indigo-200 text-center animate-fade-in">
+            {testAlertMsg}
+          </div>
+        )}
 
         {/* ── TAB 1: HOURLY PRICE-TO-OI ANALYZER ───────────────────────────────── */}
         {activeTab === 'price_to_oi' && (
@@ -783,9 +1082,25 @@ export default function OptionChainPage() {
                           className={`hover:bg-[#f0f7ff] dark:hover:bg-slate-800/60 transition-colors ${isATM ? 'font-semibold' : ''}`}
                         >
                           {/* ── CALLS (LEFT SIDE) ── */}
-                          {/* Call Conclusion Badge */}
+                          {/* Call Conclusion Badge + Watchlist Pin */}
                           <td className={`py-1.5 px-2 text-center border-r border-[#e6e6e6] dark:border-slate-800 ${ceBg}`}>
-                            {renderObservationBadge(row.ce.analysis.observation, row.ce.analysis.optionView, row.ce.analysis.equityView, true)}
+                            <div className="flex items-center justify-center gap-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleWatchlist(row.strike, 'CE');
+                                }}
+                                title={isWatched(row.strike, 'CE') ? 'Remove CE from Telegram alerts' : 'Pin CE to Telegram alerts'}
+                                className={`p-0.5 rounded cursor-pointer transition text-[11px] leading-none ${
+                                  isWatched(row.strike, 'CE')
+                                    ? 'text-amber-500 scale-110 drop-shadow-xs'
+                                    : 'text-gray-300 dark:text-slate-600 hover:text-amber-400'
+                                }`}
+                              >
+                                {isWatched(row.strike, 'CE') ? '⭐' : '☆'}
+                              </button>
+                              {renderObservationBadge(row.ce.analysis.observation, row.ce.analysis.optionView, row.ce.analysis.equityView, true)}
+                            </div>
                           </td>
 
                           {/* Call OI & Delta */}
@@ -861,9 +1176,25 @@ export default function OptionChainPage() {
                             </div>
                           </td>
 
-                          {/* Put Conclusion Badge */}
+                          {/* Put Conclusion Badge + Watchlist Pin */}
                           <td className={`py-1.5 px-2 text-center ${peBg}`}>
-                            {renderObservationBadge(row.pe.analysis.observation, row.pe.analysis.optionView, row.pe.analysis.equityView, false)}
+                            <div className="flex items-center justify-center gap-1">
+                              {renderObservationBadge(row.pe.analysis.observation, row.pe.analysis.optionView, row.pe.analysis.equityView, false)}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleWatchlist(row.strike, 'PE');
+                                }}
+                                title={isWatched(row.strike, 'PE') ? 'Remove PE from Telegram alerts' : 'Pin PE to Telegram alerts'}
+                                className={`p-0.5 rounded cursor-pointer transition text-[11px] leading-none ${
+                                  isWatched(row.strike, 'PE')
+                                    ? 'text-amber-500 scale-110 drop-shadow-xs'
+                                    : 'text-gray-300 dark:text-slate-600 hover:text-amber-400'
+                                }`}
+                              >
+                                {isWatched(row.strike, 'PE') ? '⭐' : '☆'}
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -938,13 +1269,29 @@ export default function OptionChainPage() {
                         {formatIndianNumber(row.ce.change_oi)}
                       </td>
                       <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 ${ceBg}`}>
-                        {row.ce.ltp > 0 ? (
-                          <span className="text-[#0055b8] dark:text-blue-400 font-bold hover:underline cursor-pointer">
-                            {formatIndianNumber(row.ce.ltp, 2)}
-                          </span>
-                        ) : (
-                          '-'
-                        )}
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleWatchlist(row.strike, 'CE');
+                            }}
+                            title={isWatched(row.strike, 'CE') ? 'Remove CE from Telegram alerts' : 'Pin CE to Telegram alerts'}
+                            className={`p-0.5 rounded cursor-pointer transition text-[11px] leading-none ${
+                              isWatched(row.strike, 'CE')
+                                ? 'text-amber-500 scale-110 drop-shadow-xs'
+                                : 'text-gray-300 dark:text-slate-600 hover:text-amber-400'
+                            }`}
+                          >
+                            {isWatched(row.strike, 'CE') ? '⭐' : '☆'}
+                          </button>
+                          {row.ce.ltp > 0 ? (
+                            <span className="text-[#0055b8] dark:text-blue-400 font-bold hover:underline cursor-pointer">
+                              {formatIndianNumber(row.ce.ltp, 2)}
+                            </span>
+                          ) : (
+                            '-'
+                          )}
+                        </div>
                       </td>
                       <td className={`py-1.5 px-2.5 text-right border-r-2 border-[#b0b0b0] dark:border-slate-700 ${ceBg}`}>
                         {renderDelta(row.ce.price_change)}
@@ -970,13 +1317,29 @@ export default function OptionChainPage() {
                         {renderDelta(row.pe.price_change)}
                       </td>
                       <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 ${peBg}`}>
-                        {row.pe.ltp > 0 ? (
-                          <span className="text-[#0055b8] dark:text-blue-400 font-bold hover:underline cursor-pointer">
-                            {formatIndianNumber(row.pe.ltp, 2)}
-                          </span>
-                        ) : (
-                          '-'
-                        )}
+                        <div className="flex items-center justify-end gap-1">
+                          {row.pe.ltp > 0 ? (
+                            <span className="text-[#0055b8] dark:text-blue-400 font-bold hover:underline cursor-pointer">
+                              {formatIndianNumber(row.pe.ltp, 2)}
+                            </span>
+                          ) : (
+                            '-'
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleWatchlist(row.strike, 'PE');
+                            }}
+                            title={isWatched(row.strike, 'PE') ? 'Remove PE from Telegram alerts' : 'Pin PE to Telegram alerts'}
+                            className={`p-0.5 rounded cursor-pointer transition text-[11px] leading-none ${
+                              isWatched(row.strike, 'PE')
+                                ? 'text-amber-500 scale-110 drop-shadow-xs'
+                                : 'text-gray-300 dark:text-slate-600 hover:text-amber-400'
+                            }`}
+                          >
+                            {isWatched(row.strike, 'PE') ? '⭐' : '☆'}
+                          </button>
+                        </div>
                       </td>
                       <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 font-medium text-[#111] dark:text-slate-100 ${peBg}`}>
                         {formatIndianNumber(row.pe.change_oi)}
@@ -1112,6 +1475,191 @@ export default function OptionChainPage() {
                 className="px-4 py-1.5 bg-[#2b2259] dark:bg-indigo-600 text-white text-[12px] font-bold rounded-md hover:bg-[#1f1842] dark:hover:bg-indigo-500 transition cursor-pointer"
               >
                 Close Inspector
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── PERSONALIZATION & TELEGRAM AUTH MODAL ────────────────────────────── */}
+      {isAuthModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
+          <div className="bg-white dark:bg-[#111827] rounded-xl border border-[#d0d7de] dark:border-slate-800 shadow-2xl max-w-md w-full flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="bg-[#2b2259] dark:bg-[#1a153a] text-white p-3.5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-[15px] font-black tracking-wide flex items-center gap-1.5">
+                  ⭐ Watchlist & Telegram Alerts
+                </span>
+              </div>
+              <button
+                onClick={() => setIsAuthModalOpen(false)}
+                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/20 text-white transition cursor-pointer text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-4 sm:p-5 flex flex-col gap-4">
+              {!currentUser ? (
+                /* Step 1: Enter Phone Number */
+                <form onSubmit={handleLogin} className="flex flex-col gap-3">
+                  <div className="text-[12px] text-gray-600 dark:text-slate-300 leading-relaxed">
+                    Enter your phone number to personalize your dashboard. You will receive <b>instant hourly Telegram alerts</b> on buildups, coverings, and OI shifts for your pinned strikes!
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-700 dark:text-slate-300 mb-1">
+                      Mobile Number
+                    </label>
+                    <div className="flex items-center">
+                      <span className="h-9 px-2.5 bg-gray-100 dark:bg-slate-800 border border-r-0 border-[#d0d7de] dark:border-slate-700 rounded-l-md text-gray-600 dark:text-slate-400 font-bold text-xs flex items-center">
+                        +91
+                      </span>
+                      <input
+                        type="tel"
+                        required
+                        maxLength={10}
+                        value={authPhone}
+                        onChange={(e) => setAuthPhone(e.target.value.replace(/\D/g, ''))}
+                        placeholder="e.g. 9876543210"
+                        className="h-9 px-3 flex-1 rounded-r-md border border-[#d0d7de] dark:border-slate-700 bg-white dark:bg-slate-900 text-[#111] dark:text-white font-semibold text-xs focus:outline-none focus:border-[#2b2259] dark:focus:border-indigo-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-gray-700 dark:text-slate-300 mb-1">
+                      Your Name (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={authName}
+                      onChange={(e) => setAuthName(e.target.value)}
+                      placeholder="e.g. Rahul Sharma"
+                      className="h-9 px-3 w-full rounded-md border border-[#d0d7de] dark:border-slate-700 bg-white dark:bg-slate-900 text-[#111] dark:text-white font-medium text-xs focus:outline-none focus:border-[#2b2259] dark:focus:border-indigo-500"
+                    />
+                  </div>
+
+                  {authError && (
+                    <div className="text-[11px] text-red-600 dark:text-red-400 font-medium">
+                      {authError}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={authLoading || authPhone.length < 10}
+                    className="mt-1 h-9 bg-[#2b2259] dark:bg-indigo-600 hover:bg-[#1f1842] dark:hover:bg-indigo-500 disabled:opacity-50 text-white font-bold text-xs rounded-md transition cursor-pointer shadow-xs"
+                  >
+                    {authLoading ? 'Setting up Profile...' : 'Save & Link Telegram Bot →'}
+                  </button>
+                </form>
+              ) : (
+                /* Step 2: Telegram Bot Status */
+                <div className="flex flex-col gap-3.5">
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-200 dark:border-slate-800">
+                    <div>
+                      <div className="font-bold text-sm text-[#111] dark:text-white">{currentUser.name || 'Trader'}</div>
+                      <div className="text-xs text-gray-500 dark:text-slate-400">📱 +91 {currentUser.phone}</div>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="text-[11px] text-red-600 dark:text-red-400 hover:underline cursor-pointer font-medium"
+                    >
+                      Log Out
+                    </button>
+                  </div>
+
+                  {currentUser.isTelegramConnected ? (
+                    <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3 flex flex-col gap-2">
+                      <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
+                        <span>✅ Telegram Connected!</span>
+                        {currentUser.telegram_username && (
+                          <span className="text-[11px] font-normal text-emerald-700 dark:text-emerald-400">
+                            (@{currentUser.telegram_username})
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[11px] text-emerald-700 dark:text-emerald-400">
+                        Whenever an hourly checkpoint is stored, you will receive an alert for all strikes with a ⭐.
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex flex-col gap-2.5">
+                      <div className="font-bold text-xs text-amber-900 dark:text-amber-300">
+                        📲 Step 2: Connect Telegram Bot
+                      </div>
+                      <div className="text-[11px] text-amber-800 dark:text-amber-400 leading-normal">
+                        Click the button below to open <b>@{botUsername}</b> on Telegram. Tap <b>START</b> to activate instant notifications!
+                      </div>
+
+                      <a
+                        href={botUrl || `https://t.me/${botUsername}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="h-9 bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold text-xs rounded-md flex items-center justify-center gap-2 transition shadow-xs cursor-pointer text-center"
+                      >
+                        <span>✈️ Open Telegram (@{botUsername})</span>
+                      </a>
+
+                      <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-500 dark:text-slate-400 pt-1">
+                        <div className="w-3.5 h-3.5 border-2 border-[#0088cc] border-t-transparent rounded-full animate-spin" />
+                        <span>Waiting for you to tap START in Telegram...</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Watchlist summary inside modal */}
+                  <div className="bg-gray-50 dark:bg-slate-900/60 border border-gray-200 dark:border-slate-800 rounded-lg p-3 flex flex-col gap-1.5">
+                    <div className="font-bold text-xs text-gray-700 dark:text-slate-300">
+                      ⭐ Your Watched Strikes ({watchlist.length})
+                    </div>
+                    <div className="text-[11px] text-gray-500 dark:text-slate-400">
+                      {watchlist.length > 0 ? (
+                        <div className="flex flex-wrap gap-1 pt-1">
+                          {watchlist.map((w) => (
+                            <span
+                              key={`${w.strike}_${w.option_type}`}
+                              className="px-2 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-[#111] dark:text-slate-200"
+                            >
+                              {w.strike} {w.option_type}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span>No strikes pinned yet. Click ⭐ next to any Call or Put strike on the dashboard table to watch it!</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Test button */}
+                  {currentUser.isTelegramConnected && watchlist.length > 0 && (
+                    <button
+                      onClick={handleSendTestAlert}
+                      disabled={testAlertLoading}
+                      className="h-8 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs rounded-md transition cursor-pointer shadow-xs"
+                    >
+                      {testAlertLoading ? 'Sending...' : '📲 Send Test Alert to Telegram Now'}
+                    </button>
+                  )}
+
+                  {testAlertMsg && (
+                    <div className="text-[11px] font-medium text-center text-indigo-700 dark:text-indigo-300">
+                      {testAlertMsg}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-[#fafbfc] dark:bg-slate-900/80 border-t border-[#e1e4e8] dark:border-slate-800 p-3 flex justify-end">
+              <button
+                onClick={() => setIsAuthModalOpen(false)}
+                className="px-4 py-1.5 bg-[#2b2259] dark:bg-indigo-600 text-white hover:bg-[#1f1842] dark:hover:bg-indigo-500 text-xs font-bold rounded-md transition cursor-pointer"
+              >
+                Done
               </button>
             </div>
           </div>
