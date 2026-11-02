@@ -148,7 +148,7 @@ export default function OptionChainPage() {
         if (json.botUsername) setBotUsername(json.botUsername);
         try {
           localStorage.setItem('nifty_user', JSON.stringify(json.user));
-        } catch (_) {}
+        } catch (_) { }
       }
     } catch (e) {
       console.error('Failed to check auth status:', e);
@@ -167,7 +167,7 @@ export default function OptionChainPage() {
         fetchWatchlist(u.id);
         checkAuthStatus(u.id);
       }
-    } catch (_) {}
+    } catch (_) { }
   }, [fetchWatchlist, checkAuthStatus]);
 
   // Poll for Telegram link completion when modal is open and Telegram not connected
@@ -197,7 +197,7 @@ export default function OptionChainPage() {
         if (json.botUsername) setBotUsername(json.botUsername);
         try {
           localStorage.setItem('nifty_user', JSON.stringify(json.user));
-        } catch (_) {}
+        } catch (_) { }
         fetchWatchlist(json.user.id);
       } else {
         setAuthError(json.error || 'Failed to submit mobile number');
@@ -218,7 +218,7 @@ export default function OptionChainPage() {
     setBotUrl('');
     try {
       localStorage.removeItem('nifty_user');
-    } catch (_) {}
+    } catch (_) { }
   };
 
   // Check if a strike is in watchlist
@@ -452,56 +452,32 @@ export default function OptionChainPage() {
 
     if (obs === 'LONG BUILD UP') {
       return (
-        <span
-          className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-            isCall
-              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
-              : 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-700'
-          }`}
-        >
-          {isCall ? '🟢 Call Buying (Bullish)' : '🔴 Put Buying (Bearish)'}
+        <span className="px-2 py-0.5 rounded text-[10px] font-bold border bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700">
+          🟢 Long Buildup
         </span>
       );
     }
 
     if (obs === 'SHORT COVERING') {
       return (
-        <span
-          className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-            isCall
-              ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200 border-emerald-400 dark:border-emerald-600'
-              : 'bg-rose-100 dark:bg-rose-900/60 text-rose-900 dark:text-rose-200 border-rose-400 dark:border-rose-600'
-          }`}
-        >
-          {isCall ? '🚀 Call Short Covering (Bullish)' : '🔻 Put Short Covering (Bearish)'}
+        <span className="px-2 py-0.5 rounded text-[10px] font-bold border bg-emerald-100 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200 border-emerald-400 dark:border-emerald-600">
+          🚀 Short Covering
         </span>
       );
     }
 
     if (obs === 'SHORT BUILD UP') {
       return (
-        <span
-          className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-            isCall
-              ? 'bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border-red-300 dark:border-red-700'
-              : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
-          }`}
-        >
-          {isCall ? '🔴 Call Writing (Resistance)' : '🟢 Put Writing (Support)'}
+        <span className="px-2 py-0.5 rounded text-[10px] font-bold border bg-red-50 dark:bg-red-950/60 text-red-800 dark:text-red-300 border-red-300 dark:border-red-700">
+          🔴 Short Buildup
         </span>
       );
     }
 
     if (obs === 'LONG COVERING') {
       return (
-        <span
-          className={`px-2 py-0.5 rounded text-[10px] font-bold border ${
-            isCall
-              ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-700'
-              : 'bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border-teal-300 dark:border-teal-700'
-          }`}
-        >
-          {isCall ? '🔻 Call Unwinding (Bearish)' : '🟢 Put Unwinding (Bullish)'}
+        <span className="px-2 py-0.5 rounded text-[10px] font-bold border bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-700">
+          🔻 Long Covering
         </span>
       );
     }
@@ -710,21 +686,19 @@ export default function OptionChainPage() {
               <div className="flex items-center bg-[#f0f2f5] dark:bg-slate-800 p-0.5 rounded-lg border border-[#d0d7de] dark:border-slate-700">
                 <button
                   onClick={() => setActiveTab('price_to_oi')}
-                  className={`px-3 py-1 rounded-md text-[11.5px] font-bold transition cursor-pointer flex items-center gap-1.5 ${
-                    activeTab === 'price_to_oi'
+                  className={`px-3 py-1 rounded-md text-[11.5px] font-bold transition cursor-pointer flex items-center gap-1.5 ${activeTab === 'price_to_oi'
                       ? 'bg-[#2b2259] dark:bg-indigo-600 text-white shadow-xs'
                       : 'text-[#555] dark:text-slate-400 hover:text-[#111] dark:hover:text-white'
-                  }`}
+                    }`}
                 >
                   <span>🎯 Hourly OI Analyzer</span>
                 </button>
                 <button
                   onClick={() => setActiveTab('chain')}
-                  className={`px-3 py-1 rounded-md text-[11.5px] font-bold transition cursor-pointer flex items-center gap-1.5 ${
-                    activeTab === 'chain'
+                  className={`px-3 py-1 rounded-md text-[11.5px] font-bold transition cursor-pointer flex items-center gap-1.5 ${activeTab === 'chain'
                       ? 'bg-[#2b2259] dark:bg-indigo-600 text-white shadow-xs'
                       : 'text-[#555] dark:text-slate-400 hover:text-[#111] dark:hover:text-white'
-                  }`}
+                    }`}
                 >
                   <span>⚡ NSE Option Chain</span>
                 </button>
@@ -833,11 +807,10 @@ export default function OptionChainPage() {
                 {watchlist.map((w) => (
                   <span
                     key={`${w.strike}_${w.option_type}`}
-                    className={`px-2 py-0.5 rounded text-[10.5px] font-bold border flex items-center gap-1 shadow-2xs ${
-                      w.option_type === 'CE'
+                    className={`px-2 py-0.5 rounded text-[10.5px] font-bold border flex items-center gap-1 shadow-2xs ${w.option_type === 'CE'
                         ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-700'
                         : 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-700'
-                    }`}
+                      }`}
                   >
                     <span>{w.strike} {w.option_type}</span>
                     <button
@@ -855,11 +828,10 @@ export default function OptionChainPage() {
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => setWatchlistOnly(!watchlistOnly)}
-                className={`px-2.5 py-1 rounded text-[10.5px] font-bold border transition cursor-pointer flex items-center gap-1 ${
-                  watchlistOnly
+                className={`px-2.5 py-1 rounded text-[10.5px] font-bold border transition cursor-pointer flex items-center gap-1 ${watchlistOnly
                     ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
                     : 'bg-white dark:bg-slate-800 text-amber-900 dark:text-amber-300 border-amber-300 dark:border-amber-700 hover:bg-amber-100/50'
-                }`}
+                  }`}
               >
                 {watchlistOnly ? 'Show All Strikes' : '🎯 View Only My Strikes'}
               </button>
@@ -914,17 +886,16 @@ export default function OptionChainPage() {
                     <button
                       key={slot.id}
                       onClick={() => handleSlotClick(slot)}
-                      className={`p-2 rounded-lg text-center font-bold text-[11px] transition-all cursor-pointer flex flex-col items-center justify-center border shadow-2xs ${
-                        isSelected
+                      className={`p-2 rounded-lg text-center font-bold text-[11px] transition-all cursor-pointer flex flex-col items-center justify-center border shadow-2xs ${isSelected
                           ? 'bg-[#2b2259] dark:bg-indigo-600 text-white border-[#2b2259] dark:border-indigo-500 ring-2 ring-[#2b2259]/30 dark:ring-indigo-500/30 scale-[1.02]'
                           : 'bg-white dark:bg-slate-800 text-[#333] dark:text-slate-200 border-[#d0d7de] dark:border-slate-700 hover:border-[#2b2259] dark:hover:border-indigo-400 hover:bg-[#f8fafc] dark:hover:bg-slate-700'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-1.5">
                         <input
                           type="checkbox"
                           checked={isSelected}
-                          onChange={() => {}}
+                          onChange={() => { }}
                           className="w-3.5 h-3.5 rounded text-[#2b2259] dark:text-indigo-500 cursor-pointer"
                         />
                         <span className="tracking-tight">{slot.label}</span>
@@ -942,17 +913,16 @@ export default function OptionChainPage() {
                   <div className="flex items-center gap-2">
                     <span className="text-[#444] dark:text-slate-300 font-semibold text-[12px]">Market Position in this Time Window:</span>
                     <span
-                      className={`px-3 py-1 rounded-md text-[12px] font-black uppercase tracking-wider ${
-                        comparisonData.summary.marketStance === 'STRONG BULLISH'
+                      className={`px-3 py-1 rounded-md text-[12px] font-black uppercase tracking-wider ${comparisonData.summary.marketStance === 'STRONG BULLISH'
                           ? 'bg-emerald-600 text-white'
                           : comparisonData.summary.marketStance === 'BULLISH'
-                          ? 'bg-emerald-500 text-white'
-                          : comparisonData.summary.marketStance === 'STRONG BEARISH'
-                          ? 'bg-rose-700 text-white'
-                          : comparisonData.summary.marketStance === 'BEARISH'
-                          ? 'bg-rose-500 text-white'
-                          : 'bg-gray-600 text-white'
-                      }`}
+                            ? 'bg-emerald-500 text-white'
+                            : comparisonData.summary.marketStance === 'STRONG BEARISH'
+                              ? 'bg-rose-700 text-white'
+                              : comparisonData.summary.marketStance === 'BEARISH'
+                                ? 'bg-rose-500 text-white'
+                                : 'bg-gray-600 text-white'
+                        }`}
                     >
                       {comparisonData.summary.marketStance === 'STRONG BULLISH' && '🚀 STRONGLY BULLISH'}
                       {comparisonData.summary.marketStance === 'BULLISH' && '🟢 BULLISH'}
@@ -979,23 +949,23 @@ export default function OptionChainPage() {
                   </div>
                 </div>
 
-                {/* Counter Breakdown Grid (Simple, Clear English) */}
+                {/* Counter Breakdown Grid (Price to OI Chart) */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10.5px] pt-1">
                   <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-2 flex flex-col">
-                    <span className="text-gray-500 dark:text-slate-400 font-medium">Call Buying (Bullish):</span>
+                    <span className="text-gray-500 dark:text-slate-400 font-medium">CE Long Buildup:</span>
                     <span className="font-bold text-emerald-700 dark:text-emerald-400 text-[13px]">{comparisonData.summary.ce.longBuildup} strikes</span>
                   </div>
                   <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-2 flex flex-col">
-                    <span className="text-gray-500 dark:text-slate-400 font-medium">Call Writing (Resistance):</span>
+                    <span className="text-gray-500 dark:text-slate-400 font-medium">CE Short Buildup:</span>
                     <span className="font-bold text-red-700 dark:text-rose-400 text-[13px]">{comparisonData.summary.ce.shortBuildup} strikes</span>
                   </div>
                   <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-2 flex flex-col">
-                    <span className="text-gray-500 dark:text-slate-400 font-medium">Put Buying (Downside):</span>
-                    <span className="font-bold text-red-700 dark:text-rose-400 text-[13px]">{comparisonData.summary.pe.longBuildup} strikes</span>
+                    <span className="text-gray-500 dark:text-slate-400 font-medium">PE Long Buildup:</span>
+                    <span className="font-bold text-emerald-700 dark:text-emerald-400 text-[13px]">{comparisonData.summary.pe.longBuildup} strikes</span>
                   </div>
                   <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-2 flex flex-col">
-                    <span className="text-gray-500 dark:text-slate-400 font-medium">Put Writing (Support Floor):</span>
-                    <span className="font-bold text-emerald-700 dark:text-emerald-400 text-[13px]">{comparisonData.summary.pe.shortBuildup} strikes</span>
+                    <span className="text-gray-500 dark:text-slate-400 font-medium">PE Short Buildup:</span>
+                    <span className="font-bold text-red-700 dark:text-rose-400 text-[13px]">{comparisonData.summary.pe.shortBuildup} strikes</span>
                   </div>
                 </div>
 
@@ -1091,11 +1061,10 @@ export default function OptionChainPage() {
                                   toggleWatchlist(row.strike, 'CE');
                                 }}
                                 title={isWatched(row.strike, 'CE') ? 'Remove CE from Telegram alerts' : 'Pin CE to Telegram alerts'}
-                                className={`p-0.5 rounded cursor-pointer transition text-[11px] leading-none ${
-                                  isWatched(row.strike, 'CE')
+                                className={`p-0.5 rounded cursor-pointer transition text-[11px] leading-none ${isWatched(row.strike, 'CE')
                                     ? 'text-amber-500 scale-110 drop-shadow-xs'
                                     : 'text-gray-300 dark:text-slate-600 hover:text-amber-400'
-                                }`}
+                                  }`}
                               >
                                 {isWatched(row.strike, 'CE') ? '⭐' : '☆'}
                               </button>
@@ -1132,9 +1101,8 @@ export default function OptionChainPage() {
 
                           {/* ── STRIKE PRICE (CENTER) ── */}
                           <td
-                            className={`py-1.5 px-3 text-center font-bold border-r-2 border-[#b0b0b0] dark:border-slate-700 cursor-pointer hover:bg-[#d8e8fc] dark:hover:bg-blue-950/70 transition ${
-                              isATM ? 'bg-[#e7f1ff] dark:bg-[#172554] text-[#0055b8] dark:text-blue-300' : 'bg-[#fafafa] dark:bg-[#0d1424] text-[#0055b8] dark:text-blue-400'
-                            }`}
+                            className={`py-1.5 px-3 text-center font-bold border-r-2 border-[#b0b0b0] dark:border-slate-700 cursor-pointer hover:bg-[#d8e8fc] dark:hover:bg-blue-950/70 transition ${isATM ? 'bg-[#e7f1ff] dark:bg-[#172554] text-[#0055b8] dark:text-blue-300' : 'bg-[#fafafa] dark:bg-[#0d1424] text-[#0055b8] dark:text-blue-400'
+                              }`}
                             onClick={() => openStrikeModal(row.strike)}
                             title="Click on strike to view its hourly journey"
                           >
@@ -1186,11 +1154,10 @@ export default function OptionChainPage() {
                                   toggleWatchlist(row.strike, 'PE');
                                 }}
                                 title={isWatched(row.strike, 'PE') ? 'Remove PE from Telegram alerts' : 'Pin PE to Telegram alerts'}
-                                className={`p-0.5 rounded cursor-pointer transition text-[11px] leading-none ${
-                                  isWatched(row.strike, 'PE')
+                                className={`p-0.5 rounded cursor-pointer transition text-[11px] leading-none ${isWatched(row.strike, 'PE')
                                     ? 'text-amber-500 scale-110 drop-shadow-xs'
                                     : 'text-gray-300 dark:text-slate-600 hover:text-amber-400'
-                                }`}
+                                  }`}
                               >
                                 {isWatched(row.strike, 'PE') ? '⭐' : '☆'}
                               </button>
@@ -1208,463 +1175,460 @@ export default function OptionChainPage() {
 
         {/* ── TAB 2: STANDARD OPTION CHAIN (NSE VIEW) ─────────────────────────── */}
         {activeTab === 'chain' && (
-          <div className="overflow-x-auto border border-[#c8c8c8] dark:border-slate-800 rounded-md shadow-xs">
-            <table className="w-full min-w-[860px] text-left border-collapse font-sans bg-white dark:bg-[#111827] text-[11.5px]">
-              <thead>
-                <tr className="bg-[#2b2259] dark:bg-[#1a153a] text-white font-bold text-center border-b border-[#3e3478] dark:border-slate-800">
-                  <th colSpan={4} className="py-1.5 text-center tracking-wider border-r-2 border-white/20">
-                    CALLS
-                  </th>
-                  <th className="py-1.5 px-3 text-center border-r-2 border-white/20 bg-[#1f1842] dark:bg-[#110e26]">
-                    STRIKE
-                  </th>
-                  <th colSpan={4} className="py-1.5 text-center tracking-wider">
-                    PUTS
-                  </th>
-                </tr>
-                <tr className="bg-[#2b2259] dark:bg-[#1a153a] text-white text-[11px] border-b border-gray-300 dark:border-slate-700">
-                  <th className="py-1.5 px-2.5 text-right border-r border-white/10">OI</th>
-                  <th className="py-1.5 px-2.5 text-right border-r border-white/10">CHNG IN OI</th>
-                  <th className="py-1.5 px-2.5 text-right border-r border-white/10">LTP</th>
-                  <th className="py-1.5 px-2.5 text-right border-r-2 border-white/20">CHNG</th>
+                <div className="overflow-x-auto border border-[#c8c8c8] dark:border-slate-800 rounded-md shadow-xs">
+                  <table className="w-full min-w-[860px] text-left border-collapse font-sans bg-white dark:bg-[#111827] text-[11.5px]">
+                    <thead>
+                      <tr className="bg-[#2b2259] dark:bg-[#1a153a] text-white font-bold text-center border-b border-[#3e3478] dark:border-slate-800">
+                        <th colSpan={4} className="py-1.5 text-center tracking-wider border-r-2 border-white/20">
+                          CALLS
+                        </th>
+                        <th className="py-1.5 px-3 text-center border-r-2 border-white/20 bg-[#1f1842] dark:bg-[#110e26]">
+                          STRIKE
+                        </th>
+                        <th colSpan={4} className="py-1.5 text-center tracking-wider">
+                          PUTS
+                        </th>
+                      </tr>
+                      <tr className="bg-[#2b2259] dark:bg-[#1a153a] text-white text-[11px] border-b border-gray-300 dark:border-slate-700">
+                        <th className="py-1.5 px-2.5 text-right border-r border-white/10">OI</th>
+                        <th className="py-1.5 px-2.5 text-right border-r border-white/10">CHNG IN OI</th>
+                        <th className="py-1.5 px-2.5 text-right border-r border-white/10">LTP</th>
+                        <th className="py-1.5 px-2.5 text-right border-r-2 border-white/20">CHNG</th>
 
-                  <th className="py-1.5 px-3 text-center border-r-2 border-white/20 bg-[#1f1842] dark:bg-[#110e26]">
-                    STRIKE PRICE
-                  </th>
+                        <th className="py-1.5 px-3 text-center border-r-2 border-white/20 bg-[#1f1842] dark:bg-[#110e26]">
+                          STRIKE PRICE
+                        </th>
 
-                  <th className="py-1.5 px-2.5 text-right border-r border-white/10">CHNG</th>
-                  <th className="py-1.5 px-2.5 text-right border-r border-white/10">LTP</th>
-                  <th className="py-1.5 px-2.5 text-right border-r border-white/10">CHNG IN OI</th>
-                  <th className="py-1.5 px-2.5 text-right">OI</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#e6e6e6] dark:divide-slate-800">
-                {filteredChainRows.length === 0 ? (
-                  <tr>
-                    <td colSpan={9} className="py-8 text-center text-gray-500 dark:text-slate-400">
-                      {searchStrike ? (
-                        <span>
-                          No strike found matching <span className="font-bold text-[#2b2259] dark:text-indigo-400">"{searchStrike}"</span>. Try another strike or clear search.
-                        </span>
+                        <th className="py-1.5 px-2.5 text-right border-r border-white/10">CHNG</th>
+                        <th className="py-1.5 px-2.5 text-right border-r border-white/10">LTP</th>
+                        <th className="py-1.5 px-2.5 text-right border-r border-white/10">CHNG IN OI</th>
+                        <th className="py-1.5 px-2.5 text-right">OI</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#e6e6e6] dark:divide-slate-800">
+                      {filteredChainRows.length === 0 ? (
+                        <tr>
+                          <td colSpan={9} className="py-8 text-center text-gray-500 dark:text-slate-400">
+                            {searchStrike ? (
+                              <span>
+                                No strike found matching <span className="font-bold text-[#2b2259] dark:text-indigo-400">"{searchStrike}"</span>. Try another strike or clear search.
+                              </span>
+                            ) : (
+                              'No option chain data available.'
+                            )}
+                          </td>
+                        </tr>
                       ) : (
-                        'No option chain data available.'
+                        filteredChainRows.map((row) => {
+                          const ceBg = row.isITMCall ? 'bg-[#fff7d6] dark:bg-[#252210]' : 'bg-white dark:bg-[#111827]';
+                          const peBg = row.isITMPut ? 'bg-[#fff7d6] dark:bg-[#252210]' : 'bg-white dark:bg-[#111827]';
+                          const isATM = row.isATM;
+
+                          return (
+                            <tr
+                              key={row.strike}
+                              className={`hover:bg-[#f0f7ff] dark:hover:bg-slate-800/60 transition-colors ${isATM ? 'font-semibold' : ''}`}
+                            >
+                              <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 font-medium text-[#111] dark:text-slate-100 ${ceBg}`}>
+                                {formatIndianNumber(row.ce.oi)}
+                              </td>
+                              <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 font-medium text-[#111] dark:text-slate-100 ${ceBg}`}>
+                                {formatIndianNumber(row.ce.change_oi)}
+                              </td>
+                              <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 ${ceBg}`}>
+                                <div className="flex items-center justify-end gap-1">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleWatchlist(row.strike, 'CE');
+                                    }}
+                                    title={isWatched(row.strike, 'CE') ? 'Remove CE from Telegram alerts' : 'Pin CE to Telegram alerts'}
+                                    className={`p-0.5 rounded cursor-pointer transition text-[11px] leading-none ${isWatched(row.strike, 'CE')
+                                        ? 'text-amber-500 scale-110 drop-shadow-xs'
+                                        : 'text-gray-300 dark:text-slate-600 hover:text-amber-400'
+                                      }`}
+                                  >
+                                    {isWatched(row.strike, 'CE') ? '⭐' : '☆'}
+                                  </button>
+                                  {row.ce.ltp > 0 ? (
+                                    <span className="text-[#0055b8] dark:text-blue-400 font-bold hover:underline cursor-pointer">
+                                      {formatIndianNumber(row.ce.ltp, 2)}
+                                    </span>
+                                  ) : (
+                                    '-'
+                                  )}
+                                </div>
+                              </td>
+                              <td className={`py-1.5 px-2.5 text-right border-r-2 border-[#b0b0b0] dark:border-slate-700 ${ceBg}`}>
+                                {renderDelta(row.ce.price_change)}
+                              </td>
+
+                              <td
+                                className={`py-1.5 px-3 text-center font-bold border-r-2 border-[#b0b0b0] dark:border-slate-700 cursor-pointer hover:bg-[#d8e8fc] dark:hover:bg-blue-950/70 ${isATM ? 'bg-[#e7f1ff] dark:bg-[#172554] text-[#0055b8] dark:text-blue-300' : 'bg-[#fafafa] dark:bg-[#0d1424] text-[#0055b8] dark:text-blue-400'
+                                  }`}
+                                onClick={() => openStrikeModal(row.strike)}
+                              >
+                                <div className="flex items-center justify-center gap-1">
+                                  <span className="underline hover:text-[#003380] dark:hover:text-blue-200">{formatIndianNumber(row.strike, 2)}</span>
+                                  {isATM && (
+                                    <span className="text-[8px] px-1 py-0.2 bg-[#0055b8] dark:bg-blue-600 text-white rounded font-bold uppercase">
+                                      ATM
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+
+                              <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 ${peBg}`}>
+                                {renderDelta(row.pe.price_change)}
+                              </td>
+                              <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 ${peBg}`}>
+                                <div className="flex items-center justify-end gap-1">
+                                  {row.pe.ltp > 0 ? (
+                                    <span className="text-[#0055b8] dark:text-blue-400 font-bold hover:underline cursor-pointer">
+                                      {formatIndianNumber(row.pe.ltp, 2)}
+                                    </span>
+                                  ) : (
+                                    '-'
+                                  )}
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleWatchlist(row.strike, 'PE');
+                                    }}
+                                    title={isWatched(row.strike, 'PE') ? 'Remove PE from Telegram alerts' : 'Pin PE to Telegram alerts'}
+                                    className={`p-0.5 rounded cursor-pointer transition text-[11px] leading-none ${isWatched(row.strike, 'PE')
+                                        ? 'text-amber-500 scale-110 drop-shadow-xs'
+                                        : 'text-gray-300 dark:text-slate-600 hover:text-amber-400'
+                                      }`}
+                                  >
+                                    {isWatched(row.strike, 'PE') ? '⭐' : '☆'}
+                                  </button>
+                                </div>
+                              </td>
+                              <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 font-medium text-[#111] dark:text-slate-100 ${peBg}`}>
+                                {formatIndianNumber(row.pe.change_oi)}
+                              </td>
+                              <td className={`py-1.5 px-2.5 text-right text-[#111] dark:text-slate-100 font-medium ${peBg}`}>
+                                {formatIndianNumber(row.pe.oi)}
+                              </td>
+                            </tr>
+                          );
+                        })
                       )}
-                    </td>
-                  </tr>
+                    </tbody>
+                  </table>
+                </div>
+        )}
+
+            {/* ── Clean Footer ────────────────────────────────────────────────────── */}
+            <div className="w-full mt-2.5 text-[11px] text-[#666] dark:text-slate-400 flex flex-wrap items-center justify-between gap-2 px-1">
+              <div>
+                * Data source: NSE India • Snapshot Checkpoint: <span className="font-semibold text-[#111] dark:text-slate-200">{data?.checkpoint || 'LIVE'}</span>
+              </div>
+              <div>
+                Tip: Click on any <b className="text-[#111] dark:text-slate-200">Strike Price</b> to inspect its hourly journey.
+              </div>
+            </div>
+          </div>
+
+      {/* ── STRIKE DEEP-DIVE INSPECTOR MODAL ──────────────────────────────────── */}
+        {modalStrike !== null && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
+            <div className="bg-white dark:bg-[#111827] rounded-xl border border-[#d0d7de] dark:border-slate-800 shadow-2xl max-w-3xl w-full max-h-[85vh] flex flex-col overflow-hidden">
+              {/* Modal Header */}
+              <div className="bg-[#2b2259] dark:bg-[#1a153a] text-white p-3 sm:p-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-[16px] font-black tracking-wide">
+                    Strike {modalStrike} • Hourly Timeline Journey
+                  </span>
+                  <span className="text-[11px] bg-white/20 px-2 py-0.5 rounded font-mono">
+                    NIFTY
+                  </span>
+                </div>
+                <button
+                  onClick={() => setModalStrike(null)}
+                  className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/20 text-white transition cursor-pointer text-sm font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-3">
+                {modalLoading ? (
+                  <div className="py-16 text-center text-gray-500 dark:text-slate-400 font-medium flex flex-col items-center gap-2">
+                    <div className="w-6 h-6 border-2 border-[#2b2259] dark:border-indigo-400 border-t-transparent rounded-full animate-spin" />
+                    <span>Loading hourly progression for Strike {modalStrike}...</span>
+                  </div>
+                ) : strikeHistory.length === 0 ? (
+                  <div className="py-12 text-center text-gray-500 dark:text-slate-400">
+                    No historical snapshots found for Strike {modalStrike}.
+                  </div>
                 ) : (
-                  filteredChainRows.map((row) => {
-                  const ceBg = row.isITMCall ? 'bg-[#fff7d6] dark:bg-[#252210]' : 'bg-white dark:bg-[#111827]';
-                  const peBg = row.isITMPut ? 'bg-[#fff7d6] dark:bg-[#252210]' : 'bg-white dark:bg-[#111827]';
-                  const isATM = row.isATM;
+                  <div className="flex flex-col gap-3">
+                    <div className="text-[11.5px] text-[#444] dark:text-slate-300 bg-[#f8fafc] dark:bg-slate-900/60 p-2.5 rounded-lg border border-[#e2e8f0] dark:border-slate-800">
+                      Chronological step-by-step breakdown across each recorded hour. Check how Call and Put positions built up or covered.
+                    </div>
 
-                  return (
-                    <tr
-                      key={row.strike}
-                      className={`hover:bg-[#f0f7ff] dark:hover:bg-slate-800/60 transition-colors ${isATM ? 'font-semibold' : ''}`}
-                    >
-                      <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 font-medium text-[#111] dark:text-slate-100 ${ceBg}`}>
-                        {formatIndianNumber(row.ce.oi)}
-                      </td>
-                      <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 font-medium text-[#111] dark:text-slate-100 ${ceBg}`}>
-                        {formatIndianNumber(row.ce.change_oi)}
-                      </td>
-                      <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 ${ceBg}`}>
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleWatchlist(row.strike, 'CE');
-                            }}
-                            title={isWatched(row.strike, 'CE') ? 'Remove CE from Telegram alerts' : 'Pin CE to Telegram alerts'}
-                            className={`p-0.5 rounded cursor-pointer transition text-[11px] leading-none ${
-                              isWatched(row.strike, 'CE')
-                                ? 'text-amber-500 scale-110 drop-shadow-xs'
-                                : 'text-gray-300 dark:text-slate-600 hover:text-amber-400'
-                            }`}
-                          >
-                            {isWatched(row.strike, 'CE') ? '⭐' : '☆'}
-                          </button>
-                          {row.ce.ltp > 0 ? (
-                            <span className="text-[#0055b8] dark:text-blue-400 font-bold hover:underline cursor-pointer">
-                              {formatIndianNumber(row.ce.ltp, 2)}
-                            </span>
-                          ) : (
-                            '-'
-                          )}
-                        </div>
-                      </td>
-                      <td className={`py-1.5 px-2.5 text-right border-r-2 border-[#b0b0b0] dark:border-slate-700 ${ceBg}`}>
-                        {renderDelta(row.ce.price_change)}
-                      </td>
+                    <div className="border border-[#e1e4e8] dark:border-slate-800 rounded-lg overflow-x-auto">
+                      <table className="w-full min-w-[620px] text-left border-collapse text-[11px]">
+                        <thead>
+                          <tr className="bg-[#f0f2f5] dark:bg-slate-800 text-[#333] dark:text-slate-200 font-bold border-b border-[#e1e4e8] dark:border-slate-800">
+                            <th className="py-2 px-2.5 text-center">TIME SLOT</th>
+                            <th className="py-2 px-2 text-right">SPOT</th>
+                            <th className="py-2 px-2 text-right">CE LTP (OI)</th>
+                            <th className="py-2 px-2 text-center">CALL ACTION</th>
+                            <th className="py-2 px-2 text-right">PE LTP (OI)</th>
+                            <th className="py-2 px-2 text-center">PUT ACTION</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#eee] dark:divide-slate-800">
+                          {strikeHistory.map((step, idx) => (
+                            <tr key={`step_${step.snapshotId}`} className="hover:bg-[#f8fafc] dark:hover:bg-slate-800/60">
+                              <td className="py-2 px-2.5 font-bold text-[#2b2259] dark:text-indigo-400 text-center">
+                                {step.formattedIST} <span className="text-[10px] text-gray-500 dark:text-slate-400 font-normal">[{step.checkpoint}]</span>
+                              </td>
+                              <td className="py-2 px-2 text-right font-medium text-gray-700 dark:text-slate-300">
+                                {step.spot.toFixed(1)}
+                              </td>
+                              <td className="py-2 px-2 text-right">
+                                <span className="font-bold text-[#0055b8] dark:text-blue-400">₹{step.ce?.ltp || 0}</span>{' '}
+                                <span className="text-gray-500 dark:text-slate-400 text-[10px]">({formatIndianNumber(step.ce?.oi)})</span>
+                              </td>
+                              <td className="py-2 px-2 text-center">
+                                {step.ceAnalysis ? (
+                                  renderObservationBadge(
+                                    step.ceAnalysis.observation,
+                                    step.ceAnalysis.optionView,
+                                    step.ceAnalysis.equityView,
+                                    true
+                                  )
+                                ) : (
+                                  <span className="text-gray-400 dark:text-slate-500 text-[10px]">Baseline</span>
+                                )}
+                              </td>
+                              <td className="py-2 px-2 text-right">
+                                <span className="font-bold text-[#0055b8] dark:text-blue-400">₹{step.pe?.ltp || 0}</span>{' '}
+                                <span className="text-gray-500 dark:text-slate-400 text-[10px]">({formatIndianNumber(step.pe?.oi)})</span>
+                              </td>
+                              <td className="py-2 px-2 text-center">
+                                {step.peAnalysis ? (
+                                  renderObservationBadge(
+                                    step.peAnalysis.observation,
+                                    step.peAnalysis.optionView,
+                                    step.peAnalysis.equityView,
+                                    false
+                                  )
+                                ) : (
+                                  <span className="text-gray-400 dark:text-slate-500 text-[10px]">Baseline</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
 
-                      <td
-                        className={`py-1.5 px-3 text-center font-bold border-r-2 border-[#b0b0b0] dark:border-slate-700 cursor-pointer hover:bg-[#d8e8fc] dark:hover:bg-blue-950/70 ${
-                          isATM ? 'bg-[#e7f1ff] dark:bg-[#172554] text-[#0055b8] dark:text-blue-300' : 'bg-[#fafafa] dark:bg-[#0d1424] text-[#0055b8] dark:text-blue-400'
-                        }`}
-                        onClick={() => openStrikeModal(row.strike)}
-                      >
-                        <div className="flex items-center justify-center gap-1">
-                          <span className="underline hover:text-[#003380] dark:hover:text-blue-200">{formatIndianNumber(row.strike, 2)}</span>
-                          {isATM && (
-                            <span className="text-[8px] px-1 py-0.2 bg-[#0055b8] dark:bg-blue-600 text-white rounded font-bold uppercase">
-                              ATM
-                            </span>
-                          )}
-                        </div>
-                      </td>
-
-                      <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 ${peBg}`}>
-                        {renderDelta(row.pe.price_change)}
-                      </td>
-                      <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 ${peBg}`}>
-                        <div className="flex items-center justify-end gap-1">
-                          {row.pe.ltp > 0 ? (
-                            <span className="text-[#0055b8] dark:text-blue-400 font-bold hover:underline cursor-pointer">
-                              {formatIndianNumber(row.pe.ltp, 2)}
-                            </span>
-                          ) : (
-                            '-'
-                          )}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleWatchlist(row.strike, 'PE');
-                            }}
-                            title={isWatched(row.strike, 'PE') ? 'Remove PE from Telegram alerts' : 'Pin PE to Telegram alerts'}
-                            className={`p-0.5 rounded cursor-pointer transition text-[11px] leading-none ${
-                              isWatched(row.strike, 'PE')
-                                ? 'text-amber-500 scale-110 drop-shadow-xs'
-                                : 'text-gray-300 dark:text-slate-600 hover:text-amber-400'
-                            }`}
-                          >
-                            {isWatched(row.strike, 'PE') ? '⭐' : '☆'}
-                          </button>
-                        </div>
-                      </td>
-                      <td className={`py-1.5 px-2.5 text-right border-r border-[#e6e6e6] dark:border-slate-800 font-medium text-[#111] dark:text-slate-100 ${peBg}`}>
-                        {formatIndianNumber(row.pe.change_oi)}
-                      </td>
-                      <td className={`py-1.5 px-2.5 text-right text-[#111] dark:text-slate-100 font-medium ${peBg}`}>
-                        {formatIndianNumber(row.pe.oi)}
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-            </table>
+              {/* Modal Footer */}
+              <div className="bg-[#fafbfc] dark:bg-slate-900/60 border-t border-[#e1e4e8] dark:border-slate-800 p-3 flex justify-end">
+                <button
+                  onClick={() => setModalStrike(null)}
+                  className="px-4 py-1.5 bg-[#2b2259] dark:bg-indigo-600 text-white text-[12px] font-bold rounded-md hover:bg-[#1f1842] dark:hover:bg-indigo-500 transition cursor-pointer"
+                >
+                  Close Inspector
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* ── Clean Footer ────────────────────────────────────────────────────── */}
-        <div className="w-full mt-2.5 text-[11px] text-[#666] dark:text-slate-400 flex flex-wrap items-center justify-between gap-2 px-1">
-          <div>
-            * Data source: NSE India • Snapshot Checkpoint: <span className="font-semibold text-[#111] dark:text-slate-200">{data?.checkpoint || 'LIVE'}</span>
-          </div>
-          <div>
-            Tip: Click on any <b className="text-[#111] dark:text-slate-200">Strike Price</b> to inspect its hourly journey.
-          </div>
-        </div>
-      </div>
-
-      {/* ── STRIKE DEEP-DIVE INSPECTOR MODAL ──────────────────────────────────── */}
-      {modalStrike !== null && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
-          <div className="bg-white dark:bg-[#111827] rounded-xl border border-[#d0d7de] dark:border-slate-800 shadow-2xl max-w-3xl w-full max-h-[85vh] flex flex-col overflow-hidden">
-            {/* Modal Header */}
-            <div className="bg-[#2b2259] dark:bg-[#1a153a] text-white p-3 sm:p-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-[16px] font-black tracking-wide">
-                  Strike {modalStrike} • Hourly Timeline Journey
-                </span>
-                <span className="text-[11px] bg-white/20 px-2 py-0.5 rounded font-mono">
-                  NIFTY
-                </span>
+        {/* ── PERSONALIZATION & TELEGRAM AUTH MODAL ────────────────────────────── */}
+        {isAuthModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
+            <div className="bg-white dark:bg-[#111827] rounded-xl border border-[#d0d7de] dark:border-slate-800 shadow-2xl max-w-md w-full flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+              {/* Modal Header */}
+              <div className="bg-[#2b2259] dark:bg-[#1a153a] text-white p-3.5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-[15px] font-black tracking-wide flex items-center gap-1.5">
+                    ⭐ Watchlist & Telegram Alerts
+                  </span>
+                </div>
+                <button
+                  onClick={() => setIsAuthModalOpen(false)}
+                  className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/20 text-white transition cursor-pointer text-sm font-bold"
+                >
+                  ✕
+                </button>
               </div>
-              <button
-                onClick={() => setModalStrike(null)}
-                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/20 text-white transition cursor-pointer text-sm font-bold"
-              >
-                ✕
-              </button>
-            </div>
 
-            {/* Modal Content */}
-            <div className="p-4 overflow-y-auto flex-1 flex flex-col gap-3">
-              {modalLoading ? (
-                <div className="py-16 text-center text-gray-500 dark:text-slate-400 font-medium flex flex-col items-center gap-2">
-                  <div className="w-6 h-6 border-2 border-[#2b2259] dark:border-indigo-400 border-t-transparent rounded-full animate-spin" />
-                  <span>Loading hourly progression for Strike {modalStrike}...</span>
-                </div>
-              ) : strikeHistory.length === 0 ? (
-                <div className="py-12 text-center text-gray-500 dark:text-slate-400">
-                  No historical snapshots found for Strike {modalStrike}.
-                </div>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  <div className="text-[11.5px] text-[#444] dark:text-slate-300 bg-[#f8fafc] dark:bg-slate-900/60 p-2.5 rounded-lg border border-[#e2e8f0] dark:border-slate-800">
-                    Chronological step-by-step breakdown across each recorded hour. Check how Call and Put positions built up or covered.
-                  </div>
+              <div className="p-4 sm:p-5 flex flex-col gap-4">
+                {!currentUser ? (
+                  /* Step 1: Enter Phone Number */
+                  <form onSubmit={handleLogin} className="flex flex-col gap-3">
+                    <div className="text-[12px] text-gray-600 dark:text-slate-300 leading-relaxed">
+                      Enter your phone number to personalize your dashboard. You will receive <b>instant hourly Telegram alerts</b> on buildups, coverings, and OI shifts for your pinned strikes!
+                    </div>
 
-                  <div className="border border-[#e1e4e8] dark:border-slate-800 rounded-lg overflow-x-auto">
-                    <table className="w-full min-w-[620px] text-left border-collapse text-[11px]">
-                      <thead>
-                        <tr className="bg-[#f0f2f5] dark:bg-slate-800 text-[#333] dark:text-slate-200 font-bold border-b border-[#e1e4e8] dark:border-slate-800">
-                          <th className="py-2 px-2.5 text-center">TIME SLOT</th>
-                          <th className="py-2 px-2 text-right">SPOT</th>
-                          <th className="py-2 px-2 text-right">CE LTP (OI)</th>
-                          <th className="py-2 px-2 text-center">CALL ACTION</th>
-                          <th className="py-2 px-2 text-right">PE LTP (OI)</th>
-                          <th className="py-2 px-2 text-center">PUT ACTION</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#eee] dark:divide-slate-800">
-                        {strikeHistory.map((step, idx) => (
-                          <tr key={`step_${step.snapshotId}`} className="hover:bg-[#f8fafc] dark:hover:bg-slate-800/60">
-                            <td className="py-2 px-2.5 font-bold text-[#2b2259] dark:text-indigo-400 text-center">
-                              {step.formattedIST} <span className="text-[10px] text-gray-500 dark:text-slate-400 font-normal">[{step.checkpoint}]</span>
-                            </td>
-                            <td className="py-2 px-2 text-right font-medium text-gray-700 dark:text-slate-300">
-                              {step.spot.toFixed(1)}
-                            </td>
-                            <td className="py-2 px-2 text-right">
-                              <span className="font-bold text-[#0055b8] dark:text-blue-400">₹{step.ce?.ltp || 0}</span>{' '}
-                              <span className="text-gray-500 dark:text-slate-400 text-[10px]">({formatIndianNumber(step.ce?.oi)})</span>
-                            </td>
-                            <td className="py-2 px-2 text-center">
-                              {step.ceAnalysis ? (
-                                renderObservationBadge(
-                                  step.ceAnalysis.observation,
-                                  step.ceAnalysis.optionView,
-                                  step.ceAnalysis.equityView,
-                                  true
-                                )
-                              ) : (
-                                <span className="text-gray-400 dark:text-slate-500 text-[10px]">Baseline</span>
-                              )}
-                            </td>
-                            <td className="py-2 px-2 text-right">
-                              <span className="font-bold text-[#0055b8] dark:text-blue-400">₹{step.pe?.ltp || 0}</span>{' '}
-                              <span className="text-gray-500 dark:text-slate-400 text-[10px]">({formatIndianNumber(step.pe?.oi)})</span>
-                            </td>
-                            <td className="py-2 px-2 text-center">
-                              {step.peAnalysis ? (
-                                renderObservationBadge(
-                                  step.peAnalysis.observation,
-                                  step.peAnalysis.optionView,
-                                  step.peAnalysis.equityView,
-                                  false
-                                )
-                              ) : (
-                                <span className="text-gray-400 dark:text-slate-500 text-[10px]">Baseline</span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-gray-700 dark:text-slate-300 mb-1">
+                        Mobile Number
+                      </label>
+                      <div className="flex items-center">
+                        <span className="h-9 px-2.5 bg-gray-100 dark:bg-slate-800 border border-r-0 border-[#d0d7de] dark:border-slate-700 rounded-l-md text-gray-600 dark:text-slate-400 font-bold text-xs flex items-center">
+                          +91
+                        </span>
+                        <input
+                          type="tel"
+                          required
+                          maxLength={10}
+                          value={authPhone}
+                          onChange={(e) => setAuthPhone(e.target.value.replace(/\D/g, ''))}
+                          placeholder="e.g. 9876543210"
+                          className="h-9 px-3 flex-1 rounded-r-md border border-[#d0d7de] dark:border-slate-700 bg-white dark:bg-slate-900 text-[#111] dark:text-white font-semibold text-xs focus:outline-none focus:border-[#2b2259] dark:focus:border-indigo-500"
+                        />
+                      </div>
+                    </div>
 
-            {/* Modal Footer */}
-            <div className="bg-[#fafbfc] dark:bg-slate-900/60 border-t border-[#e1e4e8] dark:border-slate-800 p-3 flex justify-end">
-              <button
-                onClick={() => setModalStrike(null)}
-                className="px-4 py-1.5 bg-[#2b2259] dark:bg-indigo-600 text-white text-[12px] font-bold rounded-md hover:bg-[#1f1842] dark:hover:bg-indigo-500 transition cursor-pointer"
-              >
-                Close Inspector
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── PERSONALIZATION & TELEGRAM AUTH MODAL ────────────────────────────── */}
-      {isAuthModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
-          <div className="bg-white dark:bg-[#111827] rounded-xl border border-[#d0d7de] dark:border-slate-800 shadow-2xl max-w-md w-full flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            {/* Modal Header */}
-            <div className="bg-[#2b2259] dark:bg-[#1a153a] text-white p-3.5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-[15px] font-black tracking-wide flex items-center gap-1.5">
-                  ⭐ Watchlist & Telegram Alerts
-                </span>
-              </div>
-              <button
-                onClick={() => setIsAuthModalOpen(false)}
-                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/20 text-white transition cursor-pointer text-sm font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="p-4 sm:p-5 flex flex-col gap-4">
-              {!currentUser ? (
-                /* Step 1: Enter Phone Number */
-                <form onSubmit={handleLogin} className="flex flex-col gap-3">
-                  <div className="text-[12px] text-gray-600 dark:text-slate-300 leading-relaxed">
-                    Enter your phone number to personalize your dashboard. You will receive <b>instant hourly Telegram alerts</b> on buildups, coverings, and OI shifts for your pinned strikes!
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-bold text-gray-700 dark:text-slate-300 mb-1">
-                      Mobile Number
-                    </label>
-                    <div className="flex items-center">
-                      <span className="h-9 px-2.5 bg-gray-100 dark:bg-slate-800 border border-r-0 border-[#d0d7de] dark:border-slate-700 rounded-l-md text-gray-600 dark:text-slate-400 font-bold text-xs flex items-center">
-                        +91
-                      </span>
+                    <div>
+                      <label className="block text-[11px] font-bold text-gray-700 dark:text-slate-300 mb-1">
+                        Your Name (Optional)
+                      </label>
                       <input
-                        type="tel"
-                        required
-                        maxLength={10}
-                        value={authPhone}
-                        onChange={(e) => setAuthPhone(e.target.value.replace(/\D/g, ''))}
-                        placeholder="e.g. 9876543210"
-                        className="h-9 px-3 flex-1 rounded-r-md border border-[#d0d7de] dark:border-slate-700 bg-white dark:bg-slate-900 text-[#111] dark:text-white font-semibold text-xs focus:outline-none focus:border-[#2b2259] dark:focus:border-indigo-500"
+                        type="text"
+                        value={authName}
+                        onChange={(e) => setAuthName(e.target.value)}
+                        placeholder="e.g. Rahul Sharma"
+                        className="h-9 px-3 w-full rounded-md border border-[#d0d7de] dark:border-slate-700 bg-white dark:bg-slate-900 text-[#111] dark:text-white font-medium text-xs focus:outline-none focus:border-[#2b2259] dark:focus:border-indigo-500"
                       />
                     </div>
-                  </div>
 
-                  <div>
-                    <label className="block text-[11px] font-bold text-gray-700 dark:text-slate-300 mb-1">
-                      Your Name (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={authName}
-                      onChange={(e) => setAuthName(e.target.value)}
-                      placeholder="e.g. Rahul Sharma"
-                      className="h-9 px-3 w-full rounded-md border border-[#d0d7de] dark:border-slate-700 bg-white dark:bg-slate-900 text-[#111] dark:text-white font-medium text-xs focus:outline-none focus:border-[#2b2259] dark:focus:border-indigo-500"
-                    />
-                  </div>
+                    {authError && (
+                      <div className="text-[11px] text-red-600 dark:text-red-400 font-medium">
+                        {authError}
+                      </div>
+                    )}
 
-                  {authError && (
-                    <div className="text-[11px] text-red-600 dark:text-red-400 font-medium">
-                      {authError}
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={authLoading || authPhone.length < 10}
-                    className="mt-1 h-9 bg-[#2b2259] dark:bg-indigo-600 hover:bg-[#1f1842] dark:hover:bg-indigo-500 disabled:opacity-50 text-white font-bold text-xs rounded-md transition cursor-pointer shadow-xs"
-                  >
-                    {authLoading ? 'Setting up Profile...' : 'Save & Link Telegram Bot →'}
-                  </button>
-                </form>
-              ) : (
-                /* Step 2: Telegram Bot Status */
-                <div className="flex flex-col gap-3.5">
-                  <div className="flex items-center justify-between pb-2 border-b border-gray-200 dark:border-slate-800">
-                    <div>
-                      <div className="font-bold text-sm text-[#111] dark:text-white">{currentUser.name || 'Trader'}</div>
-                      <div className="text-xs text-gray-500 dark:text-slate-400">📱 +91 {currentUser.phone}</div>
-                    </div>
                     <button
-                      onClick={handleLogout}
-                      className="text-[11px] text-red-600 dark:text-red-400 hover:underline cursor-pointer font-medium"
+                      type="submit"
+                      disabled={authLoading || authPhone.length < 10}
+                      className="mt-1 h-9 bg-[#2b2259] dark:bg-indigo-600 hover:bg-[#1f1842] dark:hover:bg-indigo-500 disabled:opacity-50 text-white font-bold text-xs rounded-md transition cursor-pointer shadow-xs"
                     >
-                      Log Out
+                      {authLoading ? 'Setting up Profile...' : 'Save & Link Telegram Bot →'}
                     </button>
-                  </div>
+                  </form>
+                ) : (
+                  /* Step 2: Telegram Bot Status */
+                  <div className="flex flex-col gap-3.5">
+                    <div className="flex items-center justify-between pb-2 border-b border-gray-200 dark:border-slate-800">
+                      <div>
+                        <div className="font-bold text-sm text-[#111] dark:text-white">{currentUser.name || 'Trader'}</div>
+                        <div className="text-xs text-gray-500 dark:text-slate-400">📱 +91 {currentUser.phone}</div>
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        className="text-[11px] text-red-600 dark:text-red-400 hover:underline cursor-pointer font-medium"
+                      >
+                        Log Out
+                      </button>
+                    </div>
 
-                  {currentUser.isTelegramConnected ? (
-                    <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3 flex flex-col gap-2">
-                      <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
-                        <span>✅ Telegram Connected!</span>
-                        {currentUser.telegram_username && (
-                          <span className="text-[11px] font-normal text-emerald-700 dark:text-emerald-400">
-                            (@{currentUser.telegram_username})
-                          </span>
+                    {currentUser.isTelegramConnected ? (
+                      <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3 flex flex-col gap-2">
+                        <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
+                          <span>✅ Telegram Connected!</span>
+                          {currentUser.telegram_username && (
+                            <span className="text-[11px] font-normal text-emerald-700 dark:text-emerald-400">
+                              (@{currentUser.telegram_username})
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-emerald-700 dark:text-emerald-400">
+                          Whenever an hourly checkpoint is stored, you will receive an alert for all strikes with a ⭐.
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex flex-col gap-2.5">
+                        <div className="font-bold text-xs text-amber-900 dark:text-amber-300">
+                          📲 Step 2: Connect Telegram Bot
+                        </div>
+                        <div className="text-[11px] text-amber-800 dark:text-amber-400 leading-normal">
+                          Click the button below to open <b>@{botUsername}</b> on Telegram. Tap <b>START</b> to activate instant notifications!
+                        </div>
+
+                        <a
+                          href={botUrl || `https://t.me/${botUsername}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="h-9 bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold text-xs rounded-md flex items-center justify-center gap-2 transition shadow-xs cursor-pointer text-center"
+                        >
+                          <span>✈️ Open Telegram (@{botUsername})</span>
+                        </a>
+
+                        <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-500 dark:text-slate-400 pt-1">
+                          <div className="w-3.5 h-3.5 border-2 border-[#0088cc] border-t-transparent rounded-full animate-spin" />
+                          <span>Waiting for you to tap START in Telegram...</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Watchlist summary inside modal */}
+                    <div className="bg-gray-50 dark:bg-slate-900/60 border border-gray-200 dark:border-slate-800 rounded-lg p-3 flex flex-col gap-1.5">
+                      <div className="font-bold text-xs text-gray-700 dark:text-slate-300">
+                        ⭐ Your Watched Strikes ({watchlist.length})
+                      </div>
+                      <div className="text-[11px] text-gray-500 dark:text-slate-400">
+                        {watchlist.length > 0 ? (
+                          <div className="flex flex-wrap gap-1 pt-1">
+                            {watchlist.map((w) => (
+                              <span
+                                key={`${w.strike}_${w.option_type}`}
+                                className="px-2 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-[#111] dark:text-slate-200"
+                              >
+                                {w.strike} {w.option_type}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span>No strikes pinned yet. Click ⭐ next to any Call or Put strike on the dashboard table to watch it!</span>
                         )}
                       </div>
-                      <div className="text-[11px] text-emerald-700 dark:text-emerald-400">
-                        Whenever an hourly checkpoint is stored, you will receive an alert for all strikes with a ⭐.
-                      </div>
                     </div>
-                  ) : (
-                    <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex flex-col gap-2.5">
-                      <div className="font-bold text-xs text-amber-900 dark:text-amber-300">
-                        📲 Step 2: Connect Telegram Bot
-                      </div>
-                      <div className="text-[11px] text-amber-800 dark:text-amber-400 leading-normal">
-                        Click the button below to open <b>@{botUsername}</b> on Telegram. Tap <b>START</b> to activate instant notifications!
-                      </div>
 
-                      <a
-                        href={botUrl || `https://t.me/${botUsername}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="h-9 bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold text-xs rounded-md flex items-center justify-center gap-2 transition shadow-xs cursor-pointer text-center"
+                    {/* Test button */}
+                    {currentUser.isTelegramConnected && watchlist.length > 0 && (
+                      <button
+                        onClick={handleSendTestAlert}
+                        disabled={testAlertLoading}
+                        className="h-8 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs rounded-md transition cursor-pointer shadow-xs"
                       >
-                        <span>✈️ Open Telegram (@{botUsername})</span>
-                      </a>
+                        {testAlertLoading ? 'Sending...' : '📲 Send Test Alert to Telegram Now'}
+                      </button>
+                    )}
 
-                      <div className="flex items-center justify-center gap-1.5 text-[11px] text-gray-500 dark:text-slate-400 pt-1">
-                        <div className="w-3.5 h-3.5 border-2 border-[#0088cc] border-t-transparent rounded-full animate-spin" />
-                        <span>Waiting for you to tap START in Telegram...</span>
+                    {testAlertMsg && (
+                      <div className="text-[11px] font-medium text-center text-indigo-700 dark:text-indigo-300">
+                        {testAlertMsg}
                       </div>
-                    </div>
-                  )}
-
-                  {/* Watchlist summary inside modal */}
-                  <div className="bg-gray-50 dark:bg-slate-900/60 border border-gray-200 dark:border-slate-800 rounded-lg p-3 flex flex-col gap-1.5">
-                    <div className="font-bold text-xs text-gray-700 dark:text-slate-300">
-                      ⭐ Your Watched Strikes ({watchlist.length})
-                    </div>
-                    <div className="text-[11px] text-gray-500 dark:text-slate-400">
-                      {watchlist.length > 0 ? (
-                        <div className="flex flex-wrap gap-1 pt-1">
-                          {watchlist.map((w) => (
-                            <span
-                              key={`${w.strike}_${w.option_type}`}
-                              className="px-2 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-[#111] dark:text-slate-200"
-                            >
-                              {w.strike} {w.option_type}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span>No strikes pinned yet. Click ⭐ next to any Call or Put strike on the dashboard table to watch it!</span>
-                      )}
-                    </div>
+                    )}
                   </div>
+                )}
+              </div>
 
-                  {/* Test button */}
-                  {currentUser.isTelegramConnected && watchlist.length > 0 && (
-                    <button
-                      onClick={handleSendTestAlert}
-                      disabled={testAlertLoading}
-                      className="h-8 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs rounded-md transition cursor-pointer shadow-xs"
-                    >
-                      {testAlertLoading ? 'Sending...' : '📲 Send Test Alert to Telegram Now'}
-                    </button>
-                  )}
-
-                  {testAlertMsg && (
-                    <div className="text-[11px] font-medium text-center text-indigo-700 dark:text-indigo-300">
-                      {testAlertMsg}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer */}
-            <div className="bg-[#fafbfc] dark:bg-slate-900/80 border-t border-[#e1e4e8] dark:border-slate-800 p-3 flex justify-end">
-              <button
-                onClick={() => setIsAuthModalOpen(false)}
-                className="px-4 py-1.5 bg-[#2b2259] dark:bg-indigo-600 text-white hover:bg-[#1f1842] dark:hover:bg-indigo-500 text-xs font-bold rounded-md transition cursor-pointer"
-              >
-                Done
-              </button>
+              {/* Modal Footer */}
+              <div className="bg-[#fafbfc] dark:bg-slate-900/80 border-t border-[#e1e4e8] dark:border-slate-800 p-3 flex justify-end">
+                <button
+                  onClick={() => setIsAuthModalOpen(false)}
+                  className="px-4 py-1.5 bg-[#2b2259] dark:bg-indigo-600 text-white hover:bg-[#1f1842] dark:hover:bg-indigo-500 text-xs font-bold rounded-md transition cursor-pointer"
+                >
+                  Done
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
+        )}
+      </div>
+      );
 }

@@ -56,7 +56,7 @@ def interpret_price_to_oi(
                 "equity_view": "BULLISH",
                 "delta_price": delta_p,
                 "delta_oi": delta_oi,
-                "conclusion": "Call Long Buildup: Nifty 50 is Bullish",
+                "conclusion": "Call Long Buildup",
                 "is_significant": True,
             }
         elif not price_up and not oi_up:
@@ -66,7 +66,7 @@ def interpret_price_to_oi(
                 "equity_view": "STRONG BEARISH",
                 "delta_price": delta_p,
                 "delta_oi": delta_oi,
-                "conclusion": "Call Long Covering: Nifty 50 is Strongly Bearish",
+                "conclusion": "Call Long Covering",
                 "is_significant": True,
             }
         elif not price_up and oi_up:
@@ -76,7 +76,7 @@ def interpret_price_to_oi(
                 "equity_view": "BEARISH",
                 "delta_price": delta_p,
                 "delta_oi": delta_oi,
-                "conclusion": "Call Short Buildup: Nifty 50 is Bearish (Call Writing)",
+                "conclusion": "Call Short Buildup",
                 "is_significant": True,
             }
         elif price_up and not oi_up:
@@ -86,7 +86,7 @@ def interpret_price_to_oi(
                 "equity_view": "STRONG BULLISH",
                 "delta_price": delta_p,
                 "delta_oi": delta_oi,
-                "conclusion": "Call Short Covering: Nifty 50 is Strongly Bullish (Short Squeeze)",
+                "conclusion": "Call Short Covering",
                 "is_significant": True,
             }
 
@@ -98,7 +98,7 @@ def interpret_price_to_oi(
                 "equity_view": "BEARISH",
                 "delta_price": delta_p,
                 "delta_oi": delta_oi,
-                "conclusion": "Put Long Buildup: Nifty 50 is Bearish (Put Buying)",
+                "conclusion": "Put Long Buildup",
                 "is_significant": True,
             }
         elif not price_up and not oi_up:
@@ -108,7 +108,7 @@ def interpret_price_to_oi(
                 "equity_view": "STRONG BULLISH",
                 "delta_price": delta_p,
                 "delta_oi": delta_oi,
-                "conclusion": "Put Long Covering: Nifty 50 is Strongly Bullish (Put Unwinding)",
+                "conclusion": "Put Long Covering",
                 "is_significant": True,
             }
         elif not price_up and oi_up:
@@ -118,7 +118,7 @@ def interpret_price_to_oi(
                 "equity_view": "BULLISH",
                 "delta_price": delta_p,
                 "delta_oi": delta_oi,
-                "conclusion": "Put Short Buildup: Nifty 50 is Bullish (Put Writing / Support Floor)",
+                "conclusion": "Put Short Buildup",
                 "is_significant": True,
             }
         elif price_up and not oi_up:
@@ -128,7 +128,7 @@ def interpret_price_to_oi(
                 "equity_view": "STRONG BEARISH",
                 "delta_price": delta_p,
                 "delta_oi": delta_oi,
-                "conclusion": "Put Short Covering: Nifty 50 is Strongly Bearish (Downside Panic)",
+                "conclusion": "Put Short Covering",
                 "is_significant": True,
             }
 

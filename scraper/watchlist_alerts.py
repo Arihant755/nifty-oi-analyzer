@@ -170,17 +170,17 @@ def dispatch_watchlist_alerts_for_latest_snapshot(snapshot_id: Optional[int] = N
                     analysis = classify_price_to_oi(delta_p, delta_oi, opt_type)
                     obs = analysis["observation"]
 
-                    # Format emoji badge
+                    # Format emoji badge strictly from Price to OI Chart
                     if obs == "LONG BUILD UP":
-                        badge = "🟢 LONG BUILDUP (Bullish)" if opt_type == "CE" else "🔴 LONG BUILDUP (Put Buying / Bearish)"
+                        badge = "🟢 LONG BUILDUP"
                     elif obs == "SHORT COVERING":
-                        badge = "🚀 SHORT COVERING (Rally)" if opt_type == "CE" else "🔻 SHORT COVERING (Bearish)"
+                        badge = "🚀 SHORT COVERING"
                     elif obs == "SHORT BUILD UP":
-                        badge = "🔴 CALL WRITING (Resistance)" if opt_type == "CE" else "🟢 PUT WRITING (Support)"
+                        badge = "🔴 SHORT BUILDUP"
                     elif obs == "LONG COVERING":
-                        badge = "🔻 LONG UNWINDING (Bearish)" if opt_type == "CE" else "🟢 PUT UNWINDING (Bullish)"
+                        badge = "🔻 LONG COVERING"
                     else:
-                        badge = "⚪ Similar / No Big Change"
+                        badge = "⚪ NO BIG CHANGE"
 
                     dp_str = f"+₹{delta_p}" if delta_p > 0 else f"₹{delta_p}"
                     doi_str = f"+{delta_oi:,}" if delta_oi > 0 else f"{delta_oi:,}"

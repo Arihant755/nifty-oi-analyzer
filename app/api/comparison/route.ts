@@ -231,18 +231,21 @@ export async function GET(req: NextRequest) {
     else if (summary.sentimentScore <= -2) summary.marketStance = 'BEARISH';
     else summary.marketStance = 'NEUTRAL';
 
-    // Key observation bullets
+    // Key observation bullets strictly based on Price-to-OI chart
     if (summary.ce.shortBuildup > 3) {
-      summary.keyObservations.push(`Heavy Call Writing detected across ${summary.ce.shortBuildup} strikes (Strong resistance buildup).`);
+      summary.keyObservations.push(`Call Short Buildup detected across ${summary.ce.shortBuildup} strikes.`);
     }
     if (summary.pe.shortBuildup > 3) {
-      summary.keyObservations.push(`Put Writing active across ${summary.pe.shortBuildup} strikes (Support floor being established).`);
+      summary.keyObservations.push(`Put Short Buildup detected across ${summary.pe.shortBuildup} strikes.`);
     }
     if (summary.ce.shortCovering > 2) {
-      summary.keyObservations.push(`Short Covering triggered in Calls (${summary.ce.shortCovering} strikes) indicating upward breakout pressure.`);
+      summary.keyObservations.push(`Call Short Covering detected across ${summary.ce.shortCovering} strikes.`);
     }
     if (summary.pe.longBuildup > 2) {
-      summary.keyObservations.push(`Aggressive Put Buying detected (${summary.pe.longBuildup} strikes) anticipating downside breakdown.`);
+      summary.keyObservations.push(`Put Long Buildup detected across ${summary.pe.longBuildup} strikes.`);
+    }
+    if (summary.ce.longBuildup > 2) {
+      summary.keyObservations.push(`Call Long Buildup detected across ${summary.ce.longBuildup} strikes.`);
     }
 
     return NextResponse.json({

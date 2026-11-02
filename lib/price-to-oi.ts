@@ -68,7 +68,7 @@ export function interpretPriceToOI(
         equityView: 'BULLISH',
         deltaPrice,
         deltaOI,
-        conclusion: 'Call Long Buildup: Nifty 50 is Bullish',
+        conclusion: 'Call Long Buildup',
         isSignificant: true,
       };
     } else if (!priceUp && !oiUp) {
@@ -78,7 +78,7 @@ export function interpretPriceToOI(
         equityView: 'STRONG BEARISH',
         deltaPrice,
         deltaOI,
-        conclusion: 'Call Long Covering: Nifty 50 is Strongly Bearish',
+        conclusion: 'Call Long Covering',
         isSignificant: true,
       };
     } else if (!priceUp && oiUp) {
@@ -88,7 +88,7 @@ export function interpretPriceToOI(
         equityView: 'BEARISH',
         deltaPrice,
         deltaOI,
-        conclusion: 'Call Short Buildup: Nifty 50 is Bearish (Call Writing)',
+        conclusion: 'Call Short Buildup',
         isSignificant: true,
       };
     } else {
@@ -98,7 +98,7 @@ export function interpretPriceToOI(
         equityView: 'STRONG BULLISH',
         deltaPrice,
         deltaOI,
-        conclusion: 'Call Short Covering: Nifty 50 is Strongly Bullish (Short Squeeze)',
+        conclusion: 'Call Short Covering',
         isSignificant: true,
       };
     }
@@ -111,7 +111,7 @@ export function interpretPriceToOI(
         equityView: 'BEARISH',
         deltaPrice,
         deltaOI,
-        conclusion: 'Put Long Buildup: Nifty 50 is Bearish (Put Buying)',
+        conclusion: 'Put Long Buildup',
         isSignificant: true,
       };
     } else if (!priceUp && !oiUp) {
@@ -121,7 +121,7 @@ export function interpretPriceToOI(
         equityView: 'STRONG BULLISH',
         deltaPrice,
         deltaOI,
-        conclusion: 'Put Long Covering: Nifty 50 is Strongly Bullish (Put Unwinding)',
+        conclusion: 'Put Long Covering',
         isSignificant: true,
       };
     } else if (!priceUp && oiUp) {
@@ -131,7 +131,7 @@ export function interpretPriceToOI(
         equityView: 'BULLISH',
         deltaPrice,
         deltaOI,
-        conclusion: 'Put Short Buildup: Nifty 50 is Bullish (Put Writing / Support Floor)',
+        conclusion: 'Put Short Buildup',
         isSignificant: true,
       };
     } else {
@@ -141,7 +141,7 @@ export function interpretPriceToOI(
         equityView: 'STRONG BEARISH',
         deltaPrice,
         deltaOI,
-        conclusion: 'Put Short Covering: Nifty 50 is Strongly Bearish (Downside Panic)',
+        conclusion: 'Put Short Covering',
         isSignificant: true,
       };
     }

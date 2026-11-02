@@ -116,7 +116,7 @@ def interpret_price_to_oi(
                 "observation": "SHORT BUILD UP",
                 "option_view": "BEARISH",
                 "equity_view": "BEARISH",
-                "conclusion": "Call Short Buildup: Nifty 50 is Bearish (Call Writing)",
+                "conclusion": "Call Short Buildup",
                 "is_significant": True
             }
         elif price_up and not oi_up:
@@ -124,7 +124,7 @@ def interpret_price_to_oi(
                 "observation": "SHORT COVERING",
                 "option_view": "STRONG BULLISH",
                 "equity_view": "STRONG BULLISH",
-                "conclusion": "Call Short Covering: Nifty 50 is Strongly Bullish (Short Squeeze)",
+                "conclusion": "Call Short Covering",
                 "is_significant": True
             }
 
@@ -134,7 +134,7 @@ def interpret_price_to_oi(
                 "observation": "LONG BUILD UP",
                 "option_view": "BULLISH",
                 "equity_view": "BEARISH",
-                "conclusion": "Put Long Buildup: Nifty 50 is Bearish (Put Buying)",
+                "conclusion": "Put Long Buildup",
                 "is_significant": True
             }
         elif not price_up and not oi_up:
@@ -142,7 +142,7 @@ def interpret_price_to_oi(
                 "observation": "LONG COVERING",
                 "option_view": "STRONG BEARISH",
                 "equity_view": "STRONG BULLISH",
-                "conclusion": "Put Long Covering: Nifty 50 is Strongly Bullish (Put Unwinding)",
+                "conclusion": "Put Long Covering",
                 "is_significant": True
             }
         elif not price_up and oi_up:
@@ -150,7 +150,7 @@ def interpret_price_to_oi(
                 "observation": "SHORT BUILD UP",
                 "option_view": "BEARISH",
                 "equity_view": "BULLISH",
-                "conclusion": "Put Short Buildup: Nifty 50 is Bullish (Put Writing / Support Floor)",
+                "conclusion": "Put Short Buildup",
                 "is_significant": True
             }
         elif price_up and not oi_up:
@@ -158,7 +158,7 @@ def interpret_price_to_oi(
                 "observation": "SHORT COVERING",
                 "option_view": "STRONG BULLISH",
                 "equity_view": "STRONG BEARISH",
-                "conclusion": "Put Short Covering: Nifty 50 is Strongly Bearish (Downside Panic)",
+                "conclusion": "Put Short Covering",
                 "is_significant": True
             }
 ```

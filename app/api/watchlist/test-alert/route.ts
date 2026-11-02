@@ -97,15 +97,15 @@ export async function POST(req: NextRequest) {
       const analysis = interpretPriceToOI(w.option_type, curLtp, prvLtp, curOi, prvOi);
       const obs = analysis.observation;
 
-      let badge = '⚪ Similar / No Big Change';
+      let badge = '⚪ No Big Change';
       if (obs === 'LONG BUILD UP') {
-        badge = w.option_type === 'CE' ? '🟢 LONG BUILDUP (Bullish)' : '🔴 LONG BUILDUP (Put Buying / Bearish)';
+        badge = '🟢 LONG BUILDUP';
       } else if (obs === 'SHORT COVERING') {
-        badge = w.option_type === 'CE' ? '🚀 SHORT COVERING (Rally)' : '🔻 SHORT COVERING (Bearish)';
+        badge = '🚀 SHORT COVERING';
       } else if (obs === 'SHORT BUILD UP') {
-        badge = w.option_type === 'CE' ? '🔴 CALL WRITING (Resistance)' : '🟢 PUT WRITING (Support)';
+        badge = '🔴 SHORT BUILDUP';
       } else if (obs === 'LONG COVERING') {
-        badge = w.option_type === 'CE' ? '🔻 CALL UNWINDING (Bearish)' : '🟢 PUT UNWINDING (Bullish)';
+        badge = '🔻 LONG COVERING';
       }
 
       const dpStr = deltaP > 0 ? `+₹${deltaP}` : `₹${deltaP}`;
