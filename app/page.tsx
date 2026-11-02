@@ -1386,7 +1386,7 @@ export default function OptionChainPage() {
                           {strikeHistory.map((step, idx) => (
                             <tr key={`step_${step.snapshotId}`} className="hover:bg-[#f8fafc] dark:hover:bg-slate-800/60">
                               <td className="py-2 px-2.5 font-bold text-[#2b2259] dark:text-indigo-400 text-center">
-                                {step.formattedIST} <span className="text-[10px] text-gray-500 dark:text-slate-400 font-normal">[{step.checkpoint}]</span>
+                                {step.checkpoint || step.formattedIST}
                               </td>
                               <td className="py-2 px-2 text-right font-medium text-gray-700 dark:text-slate-300">
                                 {step.spot.toFixed(1)}
