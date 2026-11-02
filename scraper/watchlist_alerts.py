@@ -108,23 +108,23 @@ def dispatch_watchlist_alerts_for_latest_snapshot(snapshot_id: Optional[int] = N
             # 3. Fetch latest strike data and previous strike data
             cur.execute(
                 """
-                SELECT strike, option_type, ltp, oi, change_oi
+                SELECT strike, type, ltp, oi, change_oi
                 FROM chain_rows
                 WHERE snapshot_id = %s;
                 """,
                 (latest_id,),
             )
-            latest_rows = { (r["strike"], r["option_type"]): r for r in cur.fetchall() }
+            latest_rows = { (r["strike"], r["type"]): r for r in cur.fetchall() }
 
             cur.execute(
                 """
-                SELECT strike, option_type, ltp, oi, change_oi
+                SELECT strike, type, ltp, oi, change_oi
                 FROM chain_rows
                 WHERE snapshot_id = %s;
                 """,
                 (prev_id,),
             )
-            prev_rows = { (r["strike"], r["option_type"]): r for r in cur.fetchall() }
+            prev_rows = { (r["strike"], r["type"]): r for r in cur.fetchall() }
 
             sent_count = 0
 

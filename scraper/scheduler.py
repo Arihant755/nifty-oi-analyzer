@@ -31,6 +31,7 @@ from scraper.collector import OptionChainCollector
 from scraper.holidays import is_trading_day, is_market_open, get_now_ist, IST
 from scraper.db import get_snapshots_for_day
 from scraper.telegram import send_hourly_store_alert
+from scraper.watchlist_alerts import dispatch_watchlist_alerts_for_latest_snapshot
 
 logging.basicConfig(
     level=logging.INFO,
@@ -90,6 +91,11 @@ class HourlyOIScheduler:
                 )
                 # Send confirmation to Telegram
                 send_hourly_store_alert(res)
+                # Dispatch personalized alerts
+                try:
+                    dispatch_watchlist_alerts_for_latest_snapshot(res['snapshot_id'])
+                except Exception as ex:
+                    logger.warning(f"[scheduler] Error dispatching watchlist alerts: {ex}")
                 return True
             except Exception as e:
                 logger.error(f"[scheduler] Attempt {attempt}/5 failed for {checkpoint_label}: {e}")

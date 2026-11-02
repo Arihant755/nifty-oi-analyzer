@@ -1,14 +1,14 @@
 {
-  "snapshot_id": 12,
-  "checkpoint": "21:50 MANUAL",
-  "timestamp_ist": "2026-10-31 21:51:00 IST",
+  "snapshot_id": 13,
+  "checkpoint": "10:15",
+  "timestamp_ist": "2026-11-02 09:54:09 IST",
   "expiry": "03-Nov-2026",
-  "spot": 23053.1,
-  "ltp": 23053.1,
-  "pcr": 1.624,
-  "max_pain": 23000.0,
-  "total_ce_oi": 2149563,
-  "total_pe_oi": 3490526,
+  "spot": 23325.65,
+  "ltp": 23325.65,
+  "pcr": 1.687,
+  "max_pain": 23250.0,
+  "total_ce_oi": 2875142,
+  "total_pe_oi": 4851690,
   "strikes_count": 104,
   "rows_saved": 208
 }

@@ -142,3 +142,23 @@ def interpret_price_to_oi(
         "is_significant": False,
     }
 
+
+def classify_price_to_oi(
+    delta_price: float,
+    delta_oi: int,
+    option_type: str,
+    price_threshold: float = PRICE_THRESHOLD,
+    oi_threshold: int = OI_THRESHOLD,
+) -> Dict[str, Any]:
+    """Convenience wrapper accepting precomputed deltas."""
+    return interpret_price_to_oi(
+        option_type=option_type,
+        current_price=float(delta_price),
+        previous_price=0.0,
+        current_oi=int(delta_oi),
+        previous_oi=0,
+        price_threshold=price_threshold,
+        oi_threshold=oi_threshold,
+    )
+
+
