@@ -110,6 +110,8 @@ class HourlyOIScheduler:
     def check_and_catchup_missed(self):
         """
         Checks if any checkpoints earlier today should have run but are missing.
+        Guarantees that stale intraday checkpoints are never caught up hours late
+        after market close.
         """
         now = get_now_ist()
         if not is_trading_day(now):
@@ -118,14 +120,28 @@ class HourlyOIScheduler:
         date_str = now.strftime("%Y-%m-%d")
         current_minute = now.hour * 60 + now.minute
 
+        # Never run intraday catchup after 16:00 IST (market fully closed)
+        if current_minute > 960:
+            return
+
         for h, m, label in SCHEDULED_CHECKPOINTS:
             checkpoint_minute = h * 60 + m
-            # If checkpoint was in the past today, but not executed yet
-            if current_minute >= checkpoint_minute and label not in self.executed_today:
-                logger.warning(f"[scheduler] DETECTED MISSED CHECKPOINT: {label} (Current time: {now.strftime('%H:%M IST')})")
-                success = self.execute_checkpoint(label)
-                if success:
-                    self.executed_today.add(label)
+            if label not in self.executed_today:
+                is_eligible = False
+                if label != "15:30":
+                    # Intraday slots eligible only within 35 minutes
+                    if checkpoint_minute <= current_minute <= (checkpoint_minute + 35):
+                        is_eligible = True
+                else:
+                    # 15:30 final market close eligible up to 16:00 IST
+                    if 930 <= current_minute <= 960:
+                        is_eligible = True
+
+                if is_eligible:
+                    logger.warning(f"[scheduler] DETECTED MISSED CHECKPOINT: {label} (Current time: {now.strftime('%H:%M IST')})")
+                    success = self.execute_checkpoint(label)
+                    if success:
+                        self.executed_today.add(label)
 
     def run(self):
         """Main continuous execution daemon."""

@@ -96,17 +96,31 @@ def main():
     except Exception as e:
         logger.warning(f"[cloud_runner] Could not fetch existing snapshots from DB: {e}")
 
+    current_minute = now.hour * 60 + now.minute
+
+    # If it is past 16:00 IST (4:00 PM), regular market and post-close reconciliation are over
+    if current_minute > 960 and not force_run:
+        logger.info(f"[cloud_runner] Current time is {now.strftime('%H:%M IST')} (after 16:00 market close). No intraday collection permitted.")
+        print("[OK] Market closed. Exiting.")
+        return
+
     # Determine target checkpoint or catchup list
     checkpoints_to_run = []
     if checkpoint_arg:
         checkpoints_to_run.append(checkpoint_arg)
     else:
-        current_minute = now.hour * 60 + now.minute
         for h, m, label in SCHEDULED_SLOTS:
             slot_minute = h * 60 + m
-            # If checkpoint time has passed (or is right now) and hasn't been saved yet today
-            if current_minute >= slot_minute and label not in completed_checkpoints:
-                checkpoints_to_run.append(label)
+            # If checkpoint has not been saved yet today:
+            if label not in completed_checkpoints:
+                # Intraday checkpoints (09:15 to 15:15) can only be captured within 35 minutes of slot time
+                if label != "15:30":
+                    if slot_minute <= current_minute <= (slot_minute + 35):
+                        checkpoints_to_run.append(label)
+                else:
+                    # 15:30 Market Close Final can be captured between 15:30 and 16:00 IST
+                    if 930 <= current_minute <= 960:
+                        checkpoints_to_run.append("15:30")
 
     if not checkpoints_to_run:
         logger.info("[cloud_runner] All due checkpoints for today are already captured and recorded! Nothing to do.")
