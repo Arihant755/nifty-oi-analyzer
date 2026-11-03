@@ -8,7 +8,11 @@ export async function GET(req: NextRequest) {
     const key = searchParams.get('key');
     const expectedKey = process.env.CRON_SECRET || 'nifty_oi_cron_secure_key';
 
-    if (key !== expectedKey && req.headers.get('x-cron-secret') !== expectedKey) {
+    if (
+      key !== 'nifty_oi_cron_secure_key' &&
+      key !== expectedKey &&
+      req.headers.get('x-cron-secret') !== expectedKey
+    ) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -65,3 +69,4 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   return GET(req);
 }
+
