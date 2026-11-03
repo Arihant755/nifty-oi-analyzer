@@ -123,7 +123,7 @@ class HourlyOIScheduler:
             # If checkpoint was in the past today, but not executed yet
             if current_minute >= checkpoint_minute and label not in self.executed_today:
                 logger.warning(f"[scheduler] DETECTED MISSED CHECKPOINT: {label} (Current time: {now.strftime('%H:%M IST')})")
-                success = self.execute_checkpoint(f"{label} (CATCHUP)")
+                success = self.execute_checkpoint(label)
                 if success:
                     self.executed_today.add(label)
 

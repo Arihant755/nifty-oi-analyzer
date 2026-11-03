@@ -2,21 +2,11 @@ name: Nifty 50 Hourly OI Cloud Scraper
 
 on:
   schedule:
-    # 09:15 IST (03:45 UTC) - Market Open Stance
-    - cron: '45 3 * * 1-5'
-    # 10:15 IST (04:45 UTC) - Hour 1 Checkpoint
-    - cron: '45 4 * * 1-5'
-    # 11:15 IST (05:45 UTC) - Hour 2 Checkpoint
-    - cron: '45 5 * * 1-5'
-    # 12:15 IST (06:45 UTC) - Hour 3 Midday Checkpoint
-    - cron: '45 6 * * 1-5'
-    # 13:15 IST (07:45 UTC) - Hour 4 Afternoon Checkpoint
-    - cron: '45 7 * * 1-5'
-    # 14:15 IST (08:45 UTC) - Hour 5 Pre-Breakout Checkpoint
-    - cron: '45 8 * * 1-5'
-    # 15:15 IST (09:45 UTC) - Hour 6 Pre-Close Checkpoint
-    - cron: '45 9 * * 1-5'
-    # 15:30 IST (10:00 UTC) - Market Close Final Wrap
+    # Runs at minute 15 and 45 throughout trading hours (03:15 to 10:15 UTC = 08:45 to 15:45 IST)
+    # At :45 UTC (:15 IST), captures official hourly checkpoints (09:15, 10:15, 11:15, 12:15, 13:15, 14:15, 15:15)
+    # At :15 UTC (:45 IST), automatically catches up if GitHub Actions queue delayed the earlier run
+    - cron: '15,45 3-10 * * 1-5'
+    # 15:30 IST Market Close Final (10:00 UTC)
     - cron: '0 10 * * 1-5'
   workflow_dispatch:
     inputs:
@@ -58,4 +48,3 @@ jobs:
           else
             python scraper/cloud_runner.py
           fi
-
