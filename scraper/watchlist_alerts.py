@@ -58,6 +58,14 @@ def dispatch_watchlist_alerts_for_latest_snapshot(snapshot_id: Optional[int] = N
     Evaluates Price-to-OI action for every user's watched strikes and delivers
     personalized Telegram alerts to each user.
     """
+    # Staleness Guard: Never dispatch watchlist push notifications outside market hours (after 16:05 IST)
+    from scraper.holidays import get_now_ist
+    now_ist = get_now_ist()
+    minute_of_day = now_ist.hour * 60 + now_ist.minute
+    if minute_of_day > 965:
+        logger.info("[watchlist_alerts] Skipping push alerts: current time is outside market hours (> 16:05 IST).")
+        return 0
+
     bot_token = get_telegram_bot_token()
     if not bot_token:
         logger.warning("TELEGRAM_BOT_TOKEN not configured. Skipping watchlist alerts.")

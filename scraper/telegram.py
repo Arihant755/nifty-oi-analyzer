@@ -32,6 +32,14 @@ def get_telegram_creds():
 
 def send_hourly_store_alert(result: dict) -> bool:
     """Sends a formatted confirmation message to Telegram."""
+    # Staleness Guard: Never send Telegram alerts outside market hours (after 16:05 IST)
+    from scraper.holidays import get_now_ist
+    now_ist = get_now_ist()
+    minute_of_day = now_ist.hour * 60 + now_ist.minute
+    if minute_of_day > 965:
+        logger.info("[telegram] Skipping push alert: current time is outside market hours (> 16:05 IST).")
+        return False
+
     token, chat_id = get_telegram_creds()
     if not token or not chat_id:
         return False
