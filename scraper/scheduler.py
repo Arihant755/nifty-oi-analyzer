@@ -19,6 +19,8 @@ import os
 import sys
 import time
 import logging
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime, timezone, timedelta
 from typing import Set
 
@@ -194,7 +196,37 @@ class HourlyOIScheduler:
                 time.sleep(15)
 
 
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(b'{"status":"ok","service":"nifty-oi-scheduler"}')
+
+    def log_message(self, format, *args):
+        pass  # silent healthcheck logs
+
+
+def start_health_server():
+    """Runs a minimal HTTP health server to qualify for Render Free Web Service."""
+    port_str = os.environ.get("PORT")
+    if not port_str:
+        return
+    try:
+        port = int(port_str)
+        server = HTTPServer(("0.0.0.0", port), HealthHandler)
+        logger.info(f"[scheduler] Health check server listening on port {port}")
+        server.serve_forever()
+    except Exception as e:
+        logger.warning(f"[scheduler] Health server warning: {e}")
+
+
 def main():
+    # If deployed on cloud (e.g. Render / Railway), spin up background health port
+    if os.environ.get("PORT"):
+        t = threading.Thread(target=start_health_server, daemon=True)
+        t.start()
+
     scheduler = HourlyOIScheduler()
 
     if len(sys.argv) > 1 and sys.argv[1] == "--now":

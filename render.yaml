@@ -1,5 +1,5 @@
 services:
-  - type: worker
+  - type: web
     name: nifty-oi-hourly-daemon
     env: python
     region: singapore
