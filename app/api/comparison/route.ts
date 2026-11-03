@@ -66,13 +66,24 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const fromSnap = fromSnapRows[0];
-    const toSnap = toSnapRows[0];
+    let fromSnap = fromSnapRows[0];
+    let toSnap = toSnapRows[0];
+    let actualFromId = fromId;
+    let actualToId = toId;
+
+    // Ensure strict chronological order: from must ALWAYS be the earlier snapshot, to must ALWAYS be the later snapshot
+    if (new Date(fromSnap.ts).getTime() > new Date(toSnap.ts).getTime()) {
+      const tempSnap = fromSnap;
+      fromSnap = toSnap;
+      toSnap = tempSnap;
+      actualFromId = toId;
+      actualToId = fromId;
+    }
 
     // Fetch all chain rows for both snapshots
     const [fromChainRows, toChainRows] = await Promise.all([
-      sql`SELECT strike, type, ltp, oi, volume, iv FROM chain_rows WHERE snapshot_id = ${fromId};`,
-      sql`SELECT strike, type, ltp, oi, volume, iv FROM chain_rows WHERE snapshot_id = ${toId};`,
+      sql`SELECT strike, type, ltp, oi, volume, iv FROM chain_rows WHERE snapshot_id = ${actualFromId};`,
+      sql`SELECT strike, type, ltp, oi, volume, iv FROM chain_rows WHERE snapshot_id = ${actualToId};`,
     ]);
 
     // Build lookup maps: key = `${strike}_${type}`

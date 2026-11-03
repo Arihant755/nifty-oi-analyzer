@@ -320,19 +320,32 @@ export default function OptionChainPage() {
         const list: SnapshotItem[] = json.snapshots;
         setSnapshotsList(list);
 
-        // Default: To = latest snapshot, From = previous snapshot
-        if (list.length >= 2) {
-          setToSnapshotId(list[0].id);
-          setFromSnapshotId(list[1].id);
-        } else if (list.length === 1) {
-          setToSnapshotId(list[0].id);
-          setFromSnapshotId(list[0].id);
-        }
+        // ONLY initialize defaults if user hasn't selected yet! NEVER overwrite user's selection during auto-refresh!
+        setToSnapshotId((prevTo) => {
+          if (prevTo !== null && list.some((s) => s.id === prevTo)) {
+            return prevTo; // Preserve user's selection!
+          }
+          return list[0].id;
+        });
+
+        setFromSnapshotId((prevFrom) => {
+          if (prevFrom !== null && list.some((s) => s.id === prevFrom)) {
+            return prevFrom; // Preserve user's selection!
+          }
+          return list.length >= 2 ? list[1].id : list[0].id;
+        });
       }
     } catch (e) {
       console.error('Failed to load snapshots list:', e);
     }
   }, []);
+
+  // Chronological list of snapshots (earliest to latest) for dropdowns
+  const chronologicalSnapshots = useMemo(() => {
+    return [...snapshotsList].sort(
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+  }, [snapshotsList]);
 
   // 3. Fetch Range Comparison Data
   const fetchComparison = useCallback(async (fromId: number, toId: number) => {
@@ -364,7 +377,7 @@ export default function OptionChainPage() {
     }
   }, [fromSnapshotId, toSnapshotId, fetchComparison]);
 
-  // Background auto-refresh every 30s silently
+  // Background auto-refresh every 30s silently (without resetting user selection)
   useEffect(() => {
     const interval = setInterval(() => {
       fetchData(selectedExpiry);
@@ -373,34 +386,64 @@ export default function OptionChainPage() {
     return () => clearInterval(interval);
   }, [selectedExpiry, fetchData, fetchSnapshotsList]);
 
-  // Handle Simple Hour Slot Click
-  const handleSlotClick = (slot: typeof STANDARD_HOURLY_SLOTS[0]) => {
-    setSelectedSlotId(slot.id);
-    if (!snapshotsList.length) return;
+  // Quick Preset Handlers
+  const handlePresetClick = (preset: '1h' | '2h' | 'open') => {
+    setSelectedSlotId(preset);
+    if (snapshotsList.length < 2) return;
 
+    // snapshotsList[0] is latest
     const latest = snapshotsList[0];
     setToSnapshotId(latest.id);
 
-    if (slot.id === 'open-now') {
+    if (preset === '1h') {
+      setFromSnapshotId(snapshotsList[1].id);
+    } else if (preset === '2h') {
+      const twoHrSnap = snapshotsList.length >= 3 ? snapshotsList[2] : snapshotsList[snapshotsList.length - 1];
+      setFromSnapshotId(twoHrSnap.id);
+    } else if (preset === 'open') {
       const today = latest.date;
       const todaySnaps = snapshotsList.filter((s) => s.date === today);
       const openSnap = todaySnaps[todaySnaps.length - 1] || latest;
       setFromSnapshotId(openSnap.id);
-    } else if (slot.id === 'yesterday-now') {
-      const today = latest.date;
-      const yesterdaySnap = snapshotsList.find((s) => s.date !== today);
-      setFromSnapshotId(yesterdaySnap ? yesterdaySnap.id : snapshotsList[snapshotsList.length - 1].id);
-    } else {
-      const matchStart = snapshotsList.find((s) => s.checkpoint.includes(slot.start));
-      const matchEnd = snapshotsList.find((s) => s.checkpoint.includes(slot.end));
+    }
+  };
 
-      if (matchStart && matchEnd) {
-        setFromSnapshotId(matchStart.id);
-        setToSnapshotId(matchEnd.id);
-      } else if (snapshotsList.length >= 2) {
-        setFromSnapshotId(snapshotsList[1].id);
-        setToSnapshotId(latest.id);
+  // Handle Click on standard 1-hour slots
+  const handleSlotClick = (slot: typeof STANDARD_HOURLY_SLOTS[0]) => {
+    setSelectedSlotId(slot.id);
+    if (slot.id === 'open-now') {
+      handlePresetClick('open');
+      return;
+    }
+    if (slot.id === 'yesterday-now') {
+      if (snapshotsList.length >= 2) {
+        setToSnapshotId(snapshotsList[0].id);
+        setFromSnapshotId(snapshotsList[snapshotsList.length - 1].id);
       }
+      return;
+    }
+
+    // Match snapshot by checkpoint or time
+    const findByTime = (targetTime: string) => {
+      return snapshotsList.find(
+        (s) =>
+          (s.checkpoint && s.checkpoint.includes(targetTime)) ||
+          (s.time && s.time.includes(targetTime))
+      );
+    };
+
+    const fromSnap = findByTime(slot.start);
+    const toSnap = findByTime(slot.end);
+
+    if (fromSnap && toSnap) {
+      setFromSnapshotId(fromSnap.id);
+      setToSnapshotId(toSnap.id);
+    } else if (fromSnap) {
+      setFromSnapshotId(fromSnap.id);
+      setToSnapshotId(snapshotsList[0].id);
+    } else {
+      // Default to last 1 hr if specific future slot doesn't exist yet
+      handlePresetClick('1h');
     }
   };
 
@@ -865,44 +908,120 @@ export default function OptionChainPage() {
         {/* ── TAB 1: HOURLY PRICE-TO-OI ANALYZER ───────────────────────────────── */}
         {activeTab === 'price_to_oi' && (
           <div className="flex flex-col gap-3">
-            {/* ── Simple 1-Hour Clickable Boxes (No duplicate dropdowns) ── */}
-            <div className="bg-[#fafbfc] dark:bg-slate-900/60 border border-[#d0d7de] dark:border-slate-800 rounded-lg p-3 sm:p-3.5 flex flex-col gap-2">
-              <div className="flex items-center justify-between gap-2">
+            {/* ── Time Range & Hourly Analysis Selector ── */}
+            <div className="bg-[#fafbfc] dark:bg-slate-900/60 border border-[#d0d7de] dark:border-slate-800 rounded-lg p-3 sm:p-3.5 flex flex-col gap-3">
+              {/* Row 1: Header + Presets */}
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[13px] font-bold text-[#2b2259] dark:text-indigo-300">
-                    ⏰ Click Any Hour Window:
+                    ⏰ Select Analysis Time Range:
                   </span>
-                  <span className="text-gray-500 dark:text-slate-400 text-[11px]">
-                    (Select a time box to see where institutional buyers and sellers were active)
+                  <span className="text-gray-500 dark:text-slate-400 text-[11px] hidden sm:inline">
+                    (Compare institutional accumulation between any two hours)
                   </span>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <button
+                    onClick={() => handlePresetClick('1h')}
+                    className={`px-2.5 py-1 rounded text-[11px] font-bold transition cursor-pointer border shadow-2xs ${
+                      selectedSlotId === '1h'
+                        ? 'bg-[#2b2259] dark:bg-indigo-600 text-white border-[#2b2259]'
+                        : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    ⚡ Last 1 Hr
+                  </button>
+                  <button
+                    onClick={() => handlePresetClick('2h')}
+                    className={`px-2.5 py-1 rounded text-[11px] font-bold transition cursor-pointer border shadow-2xs ${
+                      selectedSlotId === '2h'
+                        ? 'bg-[#2b2259] dark:bg-indigo-600 text-white border-[#2b2259]'
+                        : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    ⏱️ Last 2 Hrs
+                  </button>
+                  <button
+                    onClick={() => handlePresetClick('open')}
+                    className={`px-2.5 py-1 rounded text-[11px] font-bold transition cursor-pointer border shadow-2xs ${
+                      selectedSlotId === 'open' || selectedSlotId === 'open-now'
+                        ? 'bg-[#2b2259] dark:bg-indigo-600 text-white border-[#2b2259]'
+                        : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    ☀️ Full Day (Open → Now)
+                  </button>
                 </div>
               </div>
 
-              {/* Clickable Time Boxes */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 gap-2 pt-0.5">
-                {STANDARD_HOURLY_SLOTS.map((slot) => {
-                  const isSelected = selectedSlotId === slot.id;
-                  return (
-                    <button
-                      key={slot.id}
-                      onClick={() => handleSlotClick(slot)}
-                      className={`p-2 rounded-lg text-center font-bold text-[11px] transition-all cursor-pointer flex flex-col items-center justify-center border shadow-2xs ${isSelected
-                          ? 'bg-[#2b2259] dark:bg-indigo-600 text-white border-[#2b2259] dark:border-indigo-500 ring-2 ring-[#2b2259]/30 dark:ring-indigo-500/30 scale-[1.02]'
-                          : 'bg-white dark:bg-slate-800 text-[#333] dark:text-slate-200 border-[#d0d7de] dark:border-slate-700 hover:border-[#2b2259] dark:hover:border-indigo-400 hover:bg-[#f8fafc] dark:hover:bg-slate-700'
+              {/* Row 2: Explicit From & To Dropdowns (Custom Hours) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-white dark:bg-slate-800/80 p-2.5 rounded-md border border-[#e1e4e8] dark:border-slate-700">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11.5px] font-bold text-gray-600 dark:text-slate-300 shrink-0 w-16">
+                    From Hour:
+                  </span>
+                  <select
+                    value={fromSnapshotId || ''}
+                    onChange={(e) => {
+                      setFromSnapshotId(Number(e.target.value));
+                      setSelectedSlotId('custom');
+                    }}
+                    className="w-full bg-[#f8fafc] dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded px-2.5 py-1 text-[11.5px] font-medium text-[#222] dark:text-slate-200 cursor-pointer focus:ring-1 focus:ring-[#2b2259] focus:outline-hidden"
+                  >
+                    {chronologicalSnapshots.map((snap) => (
+                      <option key={`from_${snap.id}`} value={snap.id}>
+                        {snap.checkpoint ? `Checkpoint ${snap.checkpoint}` : snap.time} ({snap.time}) • Spot: {snap.spot}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-[11.5px] font-bold text-gray-600 dark:text-slate-300 shrink-0 w-16">
+                    To Hour:
+                  </span>
+                  <select
+                    value={toSnapshotId || ''}
+                    onChange={(e) => {
+                      setToSnapshotId(Number(e.target.value));
+                      setSelectedSlotId('custom');
+                    }}
+                    className="w-full bg-[#f8fafc] dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded px-2.5 py-1 text-[11.5px] font-medium text-[#222] dark:text-slate-200 cursor-pointer focus:ring-1 focus:ring-[#2b2259] focus:outline-hidden"
+                  >
+                    {chronologicalSnapshots.map((snap) => (
+                      <option key={`to_${snap.id}`} value={snap.id}>
+                        {snap.checkpoint ? `Checkpoint ${snap.checkpoint}` : snap.time} ({snap.time}) • Spot: {snap.spot}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Row 3: Standard Hourly Slot Buttons */}
+              <div className="flex flex-col gap-1">
+                <span className="text-[10.5px] font-semibold text-gray-500 dark:text-slate-400">
+                  Or click a standard 1-hour session window:
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 gap-1.5">
+                  {STANDARD_HOURLY_SLOTS.slice(0, 7).map((slot) => {
+                    const isSelected = selectedSlotId === slot.id;
+                    return (
+                      <button
+                        key={slot.id}
+                        onClick={() => handleSlotClick(slot)}
+                        className={`py-1.5 px-2 rounded text-center font-bold text-[10.5px] transition-all cursor-pointer flex items-center justify-center border shadow-2xs ${
+                          isSelected
+                            ? 'bg-[#2b2259] dark:bg-indigo-600 text-white border-[#2b2259] dark:border-indigo-500 ring-1 ring-[#2b2259]'
+                            : 'bg-white dark:bg-slate-800 text-[#333] dark:text-slate-200 border-[#d0d7de] dark:border-slate-700 hover:border-[#2b2259] hover:bg-[#f8fafc] dark:hover:bg-slate-700'
                         }`}
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => { }}
-                          className="w-3.5 h-3.5 rounded text-[#2b2259] dark:text-indigo-500 cursor-pointer"
-                        />
-                        <span className="tracking-tight">{slot.label}</span>
-                      </div>
-                    </button>
-                  );
-                })}
+                      >
+                        <span>{slot.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
