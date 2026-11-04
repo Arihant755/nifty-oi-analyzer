@@ -20,7 +20,7 @@ import sys
 import time
 import logging
 import threading
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from datetime import datetime, timezone, timedelta
 from typing import Set
 
@@ -197,6 +197,11 @@ class HourlyOIScheduler:
 
 
 class HealthHandler(BaseHTTPRequestHandler):
+    def do_HEAD(self):
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+
     def do_GET(self):
         self.send_response(200)
         self.send_header("Content-type", "application/json")
@@ -208,14 +213,12 @@ class HealthHandler(BaseHTTPRequestHandler):
 
 
 def start_health_server():
-    """Runs a minimal HTTP health server to qualify for Render Free Web Service."""
-    port_str = os.environ.get("PORT")
-    if not port_str:
-        return
+    """Runs a non-blocking threaded HTTP health server for Render/Uptime pings."""
+    port_str = os.environ.get("PORT", "10000")
     try:
         port = int(port_str)
-        server = HTTPServer(("0.0.0.0", port), HealthHandler)
-        logger.info(f"[scheduler] Health check server listening on port {port}")
+        server = ThreadingHTTPServer(("0.0.0.0", port), HealthHandler)
+        logger.info(f"[scheduler] Threaded health check server listening on 0.0.0.0:{port}")
         server.serve_forever()
     except Exception as e:
         logger.warning(f"[scheduler] Health server warning: {e}")
