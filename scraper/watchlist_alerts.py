@@ -152,64 +152,77 @@ def dispatch_watchlist_alerts_for_latest_snapshot(snapshot_id: Optional[int] = N
                     (user_id,),
                 )
                 watch_items = cur.fetchall()
-                if not watch_items:
-                    continue
 
                 ce_lines = []
                 pe_lines = []
 
-                for w in watch_items:
-                    strike = w["strike"]
-                    opt_type = w["option_type"]
-                    key = (strike, opt_type)
+                if watch_items:
+                    for w in watch_items:
+                        strike = w["strike"]
+                        opt_type = w["option_type"]
+                        key = (strike, opt_type)
 
-                    cur_data = latest_rows.get(key)
-                    prv_data = prev_rows.get(key)
+                        cur_data = latest_rows.get(key)
+                        prv_data = prev_rows.get(key)
 
-                    cur_ltp = float(cur_data["ltp"]) if cur_data and cur_data["ltp"] is not None else 0.0
-                    prv_ltp = float(prv_data["ltp"]) if prv_data and prv_data["ltp"] is not None else cur_ltp
-                    delta_p = round(cur_ltp - prv_ltp, 2)
+                        cur_ltp = float(cur_data["ltp"]) if cur_data and cur_data["ltp"] is not None else 0.0
+                        prv_ltp = float(prv_data["ltp"]) if prv_data and prv_data["ltp"] is not None else cur_ltp
+                        delta_p = round(cur_ltp - prv_ltp, 2)
 
-                    cur_oi = int(cur_data["oi"]) if cur_data and cur_data["oi"] is not None else 0
-                    prv_oi = int(prv_data["oi"]) if prv_data and prv_data["oi"] is not None else cur_oi
-                    delta_oi = cur_oi - prv_oi
+                        cur_oi = int(cur_data["oi"]) if cur_data and cur_data["oi"] is not None else 0
+                        prv_oi = int(prv_data["oi"]) if prv_data and prv_data["oi"] is not None else cur_oi
+                        delta_oi = cur_oi - prv_oi
 
-                    # Classify using official Price-to-OI engine
-                    analysis = classify_price_to_oi(delta_p, delta_oi, opt_type)
-                    obs = analysis["observation"]
+                        # Classify using official Price-to-OI engine
+                        analysis = classify_price_to_oi(delta_p, delta_oi, opt_type)
+                        obs = analysis["observation"]
 
-                    # Format emoji badge strictly from Price to OI Chart
-                    if obs == "LONG BUILD UP":
-                        badge = "🟢 LONG BUILDUP"
-                    elif obs == "SHORT COVERING":
-                        badge = "🚀 SHORT COVERING"
-                    elif obs == "SHORT BUILD UP":
-                        badge = "🔴 SHORT BUILDUP"
-                    elif obs == "LONG COVERING":
-                        badge = "🔻 LONG COVERING"
-                    else:
-                        badge = "⚪ NO BIG CHANGE"
+                        # Format emoji badge strictly from Price to OI Chart
+                        if obs == "LONG BUILD UP":
+                            badge = "🟢 LONG BUILDUP"
+                        elif obs == "SHORT COVERING":
+                            badge = "🚀 SHORT COVERING"
+                        elif obs == "SHORT BUILD UP":
+                            badge = "🔴 SHORT BUILDUP"
+                        elif obs == "LONG COVERING":
+                            badge = "🔻 LONG COVERING"
+                        else:
+                            badge = "⚪ NO BIG CHANGE"
 
-                    dp_str = f"+₹{delta_p}" if delta_p > 0 else f"₹{delta_p}"
-                    doi_str = f"+{delta_oi:,}" if delta_oi > 0 else f"{delta_oi:,}"
+                        dp_str = f"+₹{delta_p}" if delta_p > 0 else f"₹{delta_p}"
+                        doi_str = f"+{delta_oi:,}" if delta_oi > 0 else f"{delta_oi:,}"
 
-                    line = (
-                        f"• <b>{strike} {opt_type}</b>: ₹{cur_ltp:.1f} ({dp_str}) | OI: {doi_str}\n"
-                        f"  👉 <b>{badge}</b>"
-                    )
+                        line = (
+                            f"• <b>{strike} {opt_type}</b>: ₹{cur_ltp:.1f} ({dp_str}) | OI: {doi_str}\n"
+                            f"  👉 <b>{badge}</b>"
+                        )
 
-                    if opt_type == "CE":
-                        ce_lines.append(line)
-                    else:
-                        pe_lines.append(line)
+                        if opt_type == "CE":
+                            ce_lines.append(line)
+                        else:
+                            pe_lines.append(line)
 
                 # Format message
                 spot_sign = f"+{spot_delta}" if spot_delta >= 0 else f"{spot_delta}"
+                
+                # Market stance from PCR
+                if pcr >= 1.25:
+                    stance = "🟢 Strongly Bullish (Heavy Put Writing)"
+                elif pcr >= 1.05:
+                    stance = "🟢 Mildly Bullish"
+                elif pcr <= 0.75:
+                    stance = "🔴 Strongly Bearish (Heavy Call Writing)"
+                elif pcr <= 0.95:
+                    stance = "🔴 Mildly Bearish"
+                else:
+                    stance = "⚖️ Neutral / Range-Bound"
+
                 msg_parts = [
                     f"🔔 <b>NIFTY 50 HOURLY OI ALERT • {checkpoint}</b>",
-                    f"<i>Personalized Watchlist for {name}</i>",
+                    f"<i>Personal Alert for {name}</i>",
                     f"━━━━━━━━━━━━━━━━━━━━━━",
-                    f"🎯 <b>Spot / LTP:</b> <code>{spot_current:.2f}</code> ({spot_sign} pts) | <b>PCR:</b> <code>{pcr:.2f}</code>",
+                    f"🎯 <b>Spot / LTP:</b> <code>{spot_current:.2f}</code> ({spot_sign} pts)",
+                    f"📊 <b>PCR:</b> <code>{pcr:.2f}</code> 👉 {stance}",
                     f"━━━━━━━━━━━━━━━━━━━━━━",
                 ]
 
@@ -221,6 +234,12 @@ def dispatch_watchlist_alerts_for_latest_snapshot(snapshot_id: Optional[int] = N
                 if pe_lines:
                     msg_parts.append("📌 <b>Your Watched Puts (PE):</b>")
                     msg_parts.extend(pe_lines)
+                    msg_parts.append("")
+
+                if not ce_lines and not pe_lines:
+                    # Friendly prompt if user has no strikes starred yet
+                    msg_parts.append("💡 <b>Watchlist Tip:</b>")
+                    msg_parts.append("You haven't starred any strikes yet! Click the ⭐ star next to any strike on the dashboard to track its live Long/Short Buildup here.")
                     msg_parts.append("")
 
                 msg_parts.append("━━━━━━━━━━━━━━━━━━━━━━")
